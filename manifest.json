@@ -1,10 +1,13 @@
 {
-    "name" : "starter1",
-    "short_name" : "s1",
+    "lang" : "en",
+    "name" : "PWA1 Test",
+    "short_name" : "PWA1T",
+    "description" : "Testing Out PWA",
     "start_url" : ".",
-    "background_color" : "#6dcdb1",
-    "theme_color" : "#009578",
+    "background_color" : "#e8e8e8",
+    "theme_color" : "#42f5dd",
     "display" : "standalone",
+    "orientation" : "portrait",
     "icons" : [
         {
             "src" : "images/logo192.png",
