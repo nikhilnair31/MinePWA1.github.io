@@ -40,12 +40,13 @@
                 <option>-</option>
             </select>
             </br>
-
-            <label id="input_label">Input Value : </label>
-            <input type="number">
             </br>
 
-            <button type="button">Check Safety Status</button>
+            <label id="input_label">Input Value : </label>
+            <input type="number" id="input_input">
+            </br>
+
+            <button type="button" onclick="checkSafetyStatus('input_input')">Check Safety Status</button>
 
             <h3 id="safety_status_text">Safety Status</h3>
             <script src="src/index.js"></script>

@@ -30,7 +30,6 @@ firebase.analytics();
 //Initialize variables and db and get references
 const db_ref = firebase.database().ref(); 
 var curr_path = "/";
-var options = []; 
 
 //Get conn status ref and show online or offline status
 const conn_status_text = document.getElementById("conn_status");
@@ -38,7 +37,7 @@ conn_status_text.textContent = (window.navigator.onLine) ? "PWA Is Online" : "PW
 
 //Populate select reference based on path and ref
 function initialLoadOfOptions(path, select_string_ref){
-    options = [];
+    var options = [];
     if(select_string_ref != ''){
         var select_dom_ref = document.getElementById(select_string_ref);
         db_ref.child(path).once("value", function(snapshot) {
@@ -61,4 +60,30 @@ function selectedOption(curr_select_string_ref, next_select_string_ref) {
     curr_path += curr_select_dom_ref.value + '/';
     console.log(`curr_path : ${curr_path}`);
     initialLoadOfOptions(curr_path, next_select_string_ref);
+}
+
+//Check safety status by using curr_path, input number and getting key value pair from db
+function checkSafetyStatus(input_string_ref) {
+    var map = new Map();
+    var key_list = [];
+    db_ref.child(curr_path).once("value", function(snapshot) {
+        snapshot.forEach(function(child) {
+            console.log(parseInt(child.key)+": "+child.val());
+            key_list.push(parseInt(child.key));
+            map.set(parseInt(child.key), child.val());
+        });
+        console.log(map);
+
+        var safety_status_ref = document.getElementById('safety_status_text');
+        var input_text_text = document.getElementById(input_string_ref).value;
+        var input_text_int = parseInt(input_text_text);
+        for(var i = 0; i < key_list.length; i++) {
+            if(input_text_int <= key_list[i]){
+                safety_status_ref.textContent = map.get(key_list[i]);
+                console.log(key_list[i]);
+                console.log(map.get(key_list[i]));
+                break;
+            }
+        }
+    });
 }
