@@ -5,11 +5,53 @@ body {
 p {
     font-family: 'Comfortaa', cursive;
     color: whitesmoke;
+    text-decoration: underline;
 }
 
 label {
     font-family: 'Comfortaa', cursive;
     color: whitesmoke;
+    border: 5px;
+    padding: 5px;
+}
+
+select {
+    height: 1.5pc;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0px;
+}
+
+input {
+    height: 1.5pc;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+button {
+    height: 3pc;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-family: 'Comfortaa', cursive;
+    padding: 5px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
+    color: rgb(255, 255, 255);
+    background: #da313a;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0px;
+}
+
+h1 {
+    font-family: 'Comfortaa', cursive;
+    color: white;
+    margin-top: 20px;
+    margin-bottom: 40px;
 }
 
 h2 {

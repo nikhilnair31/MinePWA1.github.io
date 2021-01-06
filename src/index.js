@@ -33,17 +33,25 @@ var curr_path = "/";
 var gas_levels_ref = document.getElementById("gas_levels");
 var noise_levels_ref = document.getElementById("noise_levels");
 var fire_levels_ref = document.getElementById("fire_levels");
+var ambient_noise_ref = document.getElementById("ambient_noise");
+var safety_status_ref = document.getElementById('safety_status_text');
 
 //Get conn status ref and show online or offline status
 const conn_status_text = document.getElementById("conn_status");
 conn_status_text.textContent = (window.navigator.onLine) ? "Online" : "Offline";
 conn_status_text.style.color = (window.navigator.onLine) ? "#15e715" : "#db1c1c";
 
-//Hide all specific divs
+//Hide all general divs
 function hideAllDivs(){
     gas_levels_ref.style.display = "none";
     noise_levels_ref.style.display = "none";
     fire_levels_ref.style.display = "none";
+    ambient_noise_ref.style.display = "none";
+}
+
+//Hide all noise divs
+function hideNoiseDivs(){
+    ambient_noise_ref.style.display = "none";
 }
 
 //Hide all specific divs and then load options
@@ -72,41 +80,63 @@ function loadOfOptions(path, select_string_ref){
 }
 
 //Get path to selected node and pass to other function to fill select with options
-function selectedOption(curr_select_string_ref, next_select_string_ref) {
-    var curr_select_dom_ref = document.getElementById(curr_select_string_ref);
-    curr_path += curr_select_dom_ref.value + '/';
-    console.log(`curr_path : ${curr_path}`);
+function selectedOption(curr_select_string_ref, next_select_string_ref, addToPath) {
+    if(addToPath){
+        var curr_select_dom_ref = document.getElementById(curr_select_string_ref);
+        curr_path += curr_select_dom_ref.value + '/';
+        console.log(`curr_path : ${curr_path}`);
+    }
     loadOfOptions(curr_path, next_select_string_ref);
 }
 
 //Get value of type option chosen and show/hide aprropriate div blocks
-function selectedTypeOption(curr_select_string_ref, next_select_string_ref) {
+function selectedTypeOption(curr_select_string_ref, addToPath) {
     hideAllDivs();
     var curr_select_dom_value = document.getElementById(curr_select_string_ref).value;
-    if(curr_select_dom_value == "Gas Levels")
+    if(curr_select_dom_value == "Gas Levels"){
         gas_levels_ref.style.display = "block";
-    else if(curr_select_dom_value == "Noise Levels")
+        next_select_string_ref = 'gas_select';
+    }
+    else if(curr_select_dom_value == "Noise Levels"){
         noise_levels_ref.style.display = "block";
-    else if(curr_select_dom_value == "Fire Levels")
+        next_select_string_ref = 'noise_type_select';
+    }
+    else if(curr_select_dom_value == "Fire Levels"){
         fire_levels_ref.style.display = "block";
-    selectedOption(curr_select_string_ref, next_select_string_ref);
+        next_select_string_ref = 'fire_select';
+    }
+    selectedOption(curr_select_string_ref, next_select_string_ref, addToPath);
+}
+
+//Get value of type option chosen and show/hide aprropriate div blocks
+function selectedNoiseOption(curr_select_string_ref, addToPath) {
+    hideNoiseDivs();
+    var curr_select_dom_value = document.getElementById(curr_select_string_ref).value;
+    if(curr_select_dom_value == "Ambient Noise Levels"){
+        ambient_noise_ref.style.display = "block";
+        next_select_string_ref = 'time_select';
+    }
+    else if(curr_select_dom_value == "OSHA"){
+        ambient_noise_ref.style.display = "none";
+        next_select_string_ref = '';
+    }
+    selectedOption(curr_select_string_ref, next_select_string_ref, addToPath);
 }
 
 //Check safety status by using curr_path, input string ref and getting key value pair from db
-function checkSafetyStatus(input_string_ref) {
+function checkGasSafetyStatus(input_string_ref) {
     var map = new Map();
     var key_list = [];
     db_ref.child(curr_path).once("value", function(snapshot) {
         snapshot.forEach(function(child) {
-            console.log(parseInt(child.key)+": "+child.val());
-            key_list.push(parseInt(child.key));
-            map.set(parseInt(child.key), child.val());
+            console.log(parseFloat(child.key)+": "+child.val());
+            key_list.push(parseFloat(child.key));
+            map.set(parseFloat(child.key), child.val());
         });
         console.log(map);
 
-        var safety_status_ref = document.getElementById('safety_status_text');
         var input_text_text = document.getElementById(input_string_ref).value;
-        var input_text_int = parseInt(input_text_text);
+        var input_text_int = parseFloat(input_text_text);
         for(var i = 0; i < key_list.length; i++) {
             if(input_text_int <= key_list[i]){
                 safety_status_ref.textContent = map.get(key_list[i]);
@@ -116,4 +146,61 @@ function checkSafetyStatus(input_string_ref) {
             }
         }
     });
+}
+
+//Check safety status by using curr_path, input string ref and getting key value pair from db
+function checkNoiseSafetyStatus(loudness_input_string_ref, area_string_ref) {
+    var map = new Map();
+    var key_list = [];
+    var val_list = [];
+
+    var noise_option_dom_value = document.getElementById('noise_type_select').value;
+    if(noise_option_dom_value == "Ambient Noise Levels"){
+        db_ref.child(curr_path).once("value", function(snapshot) {
+            snapshot.forEach(function(child) {
+                console.log(child.key+": "+child.val());
+                val_list.push(child.val());
+                map.set(child.val(), child.key);
+            });
+            console.log(map);
+    
+            var threshold_noise;
+            var area_text = document.getElementById(area_string_ref).value;
+            var loudness_input_text_int = parseFloat(document.getElementById(loudness_input_string_ref).value);
+            for (let [key, value] of map.entries()) {
+                if (value === area_text)
+                    threshold_noise = key;
+            }
+            if(loudness_input_text_int <= threshold_noise)
+                safety_status_ref.textContent = 'Safe';
+            else
+                safety_status_ref.textContent = 'UnSafe';
+        });
+    }
+    else if(noise_option_dom_value == "OSHA"){
+        db_ref.child(curr_path).once("value", function(snapshot) {
+            snapshot.forEach(function(child) {
+                console.log(child.key+": "+child.val());
+                key_list.push(parseFloat(child.key));
+                map.set(parseFloat(child.key), child.val());
+            });
+            console.log(map);
+    
+            var loudness_input_text_int = parseFloat(document.getElementById(loudness_input_string_ref).value);
+            for(var i = 0; i < key_list.length; i++) {
+                if(loudness_input_text_int <= key_list[0]){
+                    safety_status_ref.textContent = `UnSafe after ${map.get(key_list[i])}+ hours`;
+                    break;
+                }
+                else if(loudness_input_text_int > key_list[key_list.length-1]){
+                    safety_status_ref.textContent = `Completely UnSafe`;
+                    break;
+                }
+                else if(loudness_input_text_int <= key_list[i]){
+                    safety_status_ref.textContent = `UnSafe after ${map.get(key_list[i])}`;
+                    break;
+                }
+            }
+        });
+    }
 }
