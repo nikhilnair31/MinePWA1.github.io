@@ -30,13 +30,27 @@ firebase.analytics();
 //Initialize variables and db and get references
 const db_ref = firebase.database().ref(); 
 var curr_path = "/";
+var gas_levels_ref = document.getElementById("gas_levels");
+var noise_levels_ref = document.getElementById("noise_levels");
 
 //Get conn status ref and show online or offline status
 const conn_status_text = document.getElementById("conn_status");
 conn_status_text.textContent = (window.navigator.onLine) ? "PWA Is Online" : "PWA Is Offline";
 
+//Hide all specific divs
+function hideAllDivs(){
+    gas_levels_ref.style.display = "none";
+    noise_levels_ref.style.display = "none";
+}
+
+//Hide all specific divs and then load options
+function intialLoadOfOptions(path, select_string_ref){
+    hideAllDivs();
+    loadOfOptions(path, select_string_ref);
+}
+
 //Populate select reference based on path and ref
-function initialLoadOfOptions(path, select_string_ref){
+function loadOfOptions(path, select_string_ref){
     var options = [];
     if(select_string_ref != ''){
         var select_dom_ref = document.getElementById(select_string_ref);
@@ -59,10 +73,21 @@ function selectedOption(curr_select_string_ref, next_select_string_ref) {
     var curr_select_dom_ref = document.getElementById(curr_select_string_ref);
     curr_path += curr_select_dom_ref.value + '/';
     console.log(`curr_path : ${curr_path}`);
-    initialLoadOfOptions(curr_path, next_select_string_ref);
+    loadOfOptions(curr_path, next_select_string_ref);
 }
 
-//Check safety status by using curr_path, input number and getting key value pair from db
+//Get value of type option chosen and show/hide aprropriate div blocks
+function selectedTypeOption(curr_select_string_ref, next_select_string_ref) {
+    hideAllDivs();
+    var curr_select_dom_value = document.getElementById(curr_select_string_ref).value;
+    if(curr_select_dom_value == "Gas Levels")
+        gas_levels_ref.style.display = "block";
+    else if(curr_select_dom_value == "Noise Levels")
+        noise_levels_ref.style.display = "block";
+    selectedOption(curr_select_string_ref, next_select_string_ref);
+}
+
+//Check safety status by using curr_path, input string ref and getting key value pair from db
 function checkSafetyStatus(input_string_ref) {
     var map = new Map();
     var key_list = [];

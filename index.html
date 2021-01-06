@@ -15,42 +15,62 @@
         <link rel="apple-touch-icon" href="images/logo192.png">
     </head>
 
-    <body onload="initialLoadOfOptions('/', 'purpose_select')">
-        <main>
-            <h3 id="conn_status">Online/Offline Status</h3>
-            <p>This is MinePWA1</p>
+    <body onload="intialLoadOfOptions('/', 'purpose_select')">
+        <h3 id="conn_status">Online/Offline Status</h3>
+        <p>This is MinePWA1</p>
 
-            <label id="purpose_label">Pick What You Want To Do</label>
-            <select id="purpose_select" onchange="selectedOption('purpose_select', 'type_select')">
+        <label id="purpose_label">Pick What You Want To Do</label>
+        <select id="purpose_select" onchange="selectedOption('purpose_select', 'type_select')">
+            <option> - </option>
+        </select>
+        </br>
+        <label id="type_label">Pick What You Want To Check Level Of</label>
+            <select id="type_select" onchange="selectedTypeOption('type_select', 'gas_select')">
                 <option>-</option>
             </select>
-            </br>
-            <label id="type_label">Pick What You Want To Check Level Of</label>
-            <select id="type_select" onchange="selectedOption('type_select', 'gas_select')">
-                <option>-</option>
-            </select>
-            </br>
-            <label id="gas_label">Pick Which Gas To Check Level Of</label>
-            <select id="gas_select" onchange="selectedOption('gas_select', 'unit_select')">
-                <option>-</option>
-            </select>
-            </br>
-            <label id="unit_label">Pick What Unit To Check In</label>
-            <select id="unit_select" onchange="selectedOption('unit_select', '')">
-                <option>-</option>
-            </select>
-            </br>
-            </br>
+        </br>
+        </br>
 
-            <label id="input_label">Input Value : </label>
-            <input type="number" id="input_input">
+        <div id="threshold_levels">
+            <div id="gas_levels">
+                <label id="gas_label">Pick Which Gas To Check Level Of</label>
+                <select id="gas_select" onchange="selectedOption('gas_select', 'unit_select')">
+                    <option>-</option>
+                </select>
+                </br>
+                <label id="unit_label">Pick What Unit To Check In</label>
+                <select id="unit_select" onchange="selectedOption('unit_select', '')">
+                    <option>-</option>
+                </select>
+                </br>
+                <label id="input_label">Input Value : </label>
+                <input type="number" id="input_input">
+                </br>
+                <button type="button" onclick="checkSafetyStatus('input_input')">Check Safety Status</button>
+            </div>
             </br>
+            <div id="noise_levels">
+                <label id="gas_label">Pick Which Gas To Check Level Of</label>
+                <select id="gas_select" onchange="selectedOption('gas_select', 'unit_select')">
+                    <option>-</option>
+                </select>
+                </br>
+                <label id="unit_label">Pick What Unit To Check In</label>
+                <select id="unit_select" onchange="selectedOption('unit_select', '')">
+                    <option>-</option>
+                </select>
+                </br>
 
-            <button type="button" onclick="checkSafetyStatus('input_input')">Check Safety Status</button>
+                <label id="input_label">Input Value : </label>
+                <input type="number" id="input_input">
+                </br>
 
-            <h3 id="safety_status_text">Safety Status</h3>
-            <script src="src/index.js"></script>
-        </main>
+                <button type="button" onclick="checkSafetyStatus('input_input')">Check Safety Status</button>
+            </div>
+        </div>
+
+        <h3 id="safety_status_text">Safety Status</h3>
+        <script src="src/index.js"></script>
     </body>
     
 </html>
