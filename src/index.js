@@ -32,15 +32,18 @@ const db_ref = firebase.database().ref();
 var curr_path = "/";
 var gas_levels_ref = document.getElementById("gas_levels");
 var noise_levels_ref = document.getElementById("noise_levels");
+var fire_levels_ref = document.getElementById("fire_levels");
 
 //Get conn status ref and show online or offline status
 const conn_status_text = document.getElementById("conn_status");
-conn_status_text.textContent = (window.navigator.onLine) ? "PWA Is Online" : "PWA Is Offline";
+conn_status_text.textContent = (window.navigator.onLine) ? "Online" : "Offline";
+conn_status_text.style.color = (window.navigator.onLine) ? "#15e715" : "#db1c1c";
 
 //Hide all specific divs
 function hideAllDivs(){
     gas_levels_ref.style.display = "none";
     noise_levels_ref.style.display = "none";
+    fire_levels_ref.style.display = "none";
 }
 
 //Hide all specific divs and then load options
@@ -84,6 +87,8 @@ function selectedTypeOption(curr_select_string_ref, next_select_string_ref) {
         gas_levels_ref.style.display = "block";
     else if(curr_select_dom_value == "Noise Levels")
         noise_levels_ref.style.display = "block";
+    else if(curr_select_dom_value == "Fire Levels")
+        fire_levels_ref.style.display = "block";
     selectedOption(curr_select_string_ref, next_select_string_ref);
 }
 
