@@ -1,8 +1,8 @@
 {
     "lang" : "en",
-    "name" : "PWA1 Test",
-    "short_name" : "PWA1T",
-    "description" : "Testing Out PWA",
+    "name" : "MinePWA1",
+    "short_name" : "MPWA1",
+    "description" : "Sample PWA for Mine Safety Checking",
     "start_url" : ".",
     "background_color" : "#e8e8e8",
     "theme_color" : "#42f5dd",

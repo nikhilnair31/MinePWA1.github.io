@@ -1,3 +1,5 @@
-# Getting Started with Progressive Web Apps (PWA)
-Contains starting code for my tutorial on creating PWAs, check it out here:\
-https://www.youtube.com/watch?v=WbbAPfDVqfY
+# Github Page Link
+https://github.com/nikhilnair31/MinePWA1.github.io
+
+# Hosted Page Link
+https://nikhilnair31.github.io/MinePWA1.github.io/
