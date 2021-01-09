@@ -1,3 +1,8 @@
+//Get conn status ref and show online or offline status
+const conn_status_text = document.getElementById("conn_status");
+conn_status_text.textContent = (window.navigator.onLine) ? "Online" : "Offline";
+conn_status_text.style.color = (window.navigator.onLine) ? "#15e715" : "#db1c1c";
+
 window.addEventListener('online', handleConnection);
 window.addEventListener('offline', handleConnection);
 
@@ -6,20 +11,20 @@ function handleConnection() {
         isReachable(getServerUrl()).then(function(online) {
             if (online) {
                 console.log('Online');
-                document.getElementById("conn_status").textContent = "Online";
-                document.getElementById("conn_status").style.color = "#15e715";
+                conn_status_text.textContent = "Online";
+                conn_status_text.style.color = "#15e715";
             } 
             else {
                 console.log('Offline');
-                document.getElementById("conn_status").textContent = "Offline";
-                document.getElementById("conn_status").style.color = "#db1c1c";
+                conn_status_text.textContent = "Offline";
+                conn_status_text.style.color = "#db1c1c";
             }
         });
     } 
     else {
         console.log('offline');
-        document.getElementById("conn_status").textContent = "Offline";
-        document.getElementById("conn_status").style.color = "#db1c1c";
+        conn_status_text.textContent = "Offline";
+        conn_status_text.style.color = "#db1c1c";
     }
 }
 

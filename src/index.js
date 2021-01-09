@@ -25,7 +25,6 @@ firebase.analytics();
 //Enable data persistance here somewhere?
 //If PWA online then sync local and cloud db and if offline use available local db only
 //Once connection is restablished refresh/recopy db from cloud to local?
-//Check if connection exists at regular intervals instead of only on load
 
 //Initialize variables and db and get references
 const db_ref = firebase.database().ref(); 
@@ -35,11 +34,6 @@ var noise_levels_ref = document.getElementById("noise_levels");
 var fire_levels_ref = document.getElementById("fire_levels");
 var ambient_noise_ref = document.getElementById("ambient_noise");
 var safety_status_ref = document.getElementById('safety_status_text');
-
-//Get conn status ref and show online or offline status
-const conn_status_text = document.getElementById("conn_status");
-conn_status_text.textContent = (window.navigator.onLine) ? "Online" : "Offline";
-conn_status_text.style.color = (window.navigator.onLine) ? "#15e715" : "#db1c1c";
 
 //Hide all general divs
 function hideAllDivs(){
