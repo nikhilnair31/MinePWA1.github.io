@@ -1,6 +1,6 @@
 //Some service worker stuff for PWA
 if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('./sw.js').then(registration => {
+    navigator.serviceWorker.register('./service_worker.js').then(registration => {
         console.log("SW REgistered");
         console.log(registration);
     }).catch(error => {
