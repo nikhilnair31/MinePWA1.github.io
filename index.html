@@ -17,8 +17,9 @@
         <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&display=swap" rel="stylesheet">
     </head>
 
-    <body onload="intialLoadOfOptions('/', 'purpose_select')">
-        <p id="conn_status">Connection Status</p>
+    <body onload="intialLoadOfOptions()">
+        <span id="conn_dot"></span>
+        <button id="twitter_button" onclick=openTwitter()></button>
         <h1>MinePWA1</h1>
 
         <label id="purpose_label">Purpose </label></br>
@@ -26,32 +27,32 @@
             <option> - </option>
         </select>
         </br>
+        
         <label id="type_label">Type </label></br>
         <select id="type_select" onchange="selectedTypeOption('type_select', true)">
             <option>-</option>
         </select>
-        </br>
-        </br>
 
         <div id="threshold_levels">
             <div id="gas_levels">
                 <p>Gas Levels</p>
-                <label id="gas_label">Which Gas? </label></br>
+                <label id="gas_label"> Which Gas? </label></br>
                 <select id="gas_select" onchange="selectedOption('gas_select', 'unit_select', true)">
                     <option>-</option>
                 </select>
                 </br>
-                <label id="unit_label">What Unit? </label></br>
-                <select id="unit_select" onchange="selectedOption('unit_select', '', true)">
+                <label id="unit_label"> What Unit? </label></br>
+                <select id="unit_select" onchange="selectedOption('unit_select', '', false)">
                     <option>-</option>
                 </select>
                 </br>
-                <label id="gas_input_label">Concentration in ppm : </label></br>
+                <label id="gas_input_label"> Gas Concentration </label></br>
                 <input type="number" id="gas_input_input">
                 </br>
-                <button type="button" onclick="checkGasSafetyStatus('gas_input_input')">Check Gas Safety Status</button>
+                <button type="button" onclick="checkGasSafetyStatus()">Check Gas Safety Status</button>
+                </br>
             </div>
-            </br>
+
             <div id="noise_levels">
                 <p>Noises Levels</p>
                 <label id="noise_type_label">What Option? </label></br>
@@ -76,32 +77,41 @@
                 <input type="number" id="loudness_input_input">
                 </br>
 
-                <button type="button" onclick="checkNoiseSafetyStatus('loudness_input_input', 'area_select')">Check Noise Safety Status</button>
+                <button type="button" onclick="checkNoiseSafetyStatus()">Check Noise Safety Status</button>
+                </br>
             </div>
-            </br>
+
             <div id="fire_levels">
                 <p>Fire Levels</p>
-                <label id="gas_label">Pick Which Gas To Check Level Of</label></br>
-                <select id="fire_select" onchange="selectedOption('gas_select', 'unit_select')">
+                <label>Which Gas Ratio</label></br>
+                <select id="fire_ratio_select" onchange="selectedFireOption('fire_ratio_select', true)">
                     <option>-</option>
                 </select>
-                </br>
-                <label id="unit_label">Pick What Unit To Check In</label></br>
-                <select id="unit_select" onchange="selectedOption('unit_select', '')">
-                    <option>-</option>
-                </select>
-                </br>
 
-                <label id="input_label">Input Value : </label></br>
-                <input type="number" id="input_input">
-                </br>
+                <div id="grahams_ratio">
+                    </br>
+                    <label>CO Conc in %</label></br>
+                    <input type="number" id="co_conc_input">
+                    </br>
+                    <label>N2 Conc in %</label></br>
+                    <input type="number" id="n2_conc_input">
+                    </br>
+                    <label>O2 Conc in %</label></br>
+                    <input type="number" id="o2_conc_input">
+                </div>
 
-                <button type="button" onclick="checkSafetyStatus('input_input')">Check Safety Status</button>
+                <button type="button" onclick="checkFireSafetyStatus()">Check Fire Safety Status</button>
+                </br>
             </div>
         </div>
 
         <h3 id="safety_status_title">Safety Status</h3>
-        <p id="safety_status_text"></p>
+        <p id="safety_status_text">???</p>
+
+        <div id="grahams_meter">
+            <div id="grahams_meter_seg"></div>
+            <div id="indicator"> ^ </div>
+        </div>
 
         <script src="src/index.js"></script>
         <script src="src/connection.js"></script>
