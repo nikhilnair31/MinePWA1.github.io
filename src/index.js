@@ -1,36 +1,21 @@
-//Some service worker stuff for PWA
-if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('./service_worker.js').then(registration => {
-        console.log("SW REgistered : ", registration);
-    }).catch(error => {
-        console.log("SW REgistration failed : ", error);
-    });
-}
-
-//Firebase config stuff
-var firebaseConfig = {
-    apiKey: "AIzaSyBl3rOUaCsWyqLLYJ4e6inczY-6fNdVyCs",
-    authDomain: "minedb31.firebaseapp.com",
-    databaseURL: "https://minedb31.firebaseio.com",
-    projectId: "minedb31",
-    storageBucket: "minedb31.appspot.com",
-    messagingSenderId: "312530864481",
-    appId: "1:312530864481:web:3a35beccd48a2c0bfa1d20",
-    measurementId: "G-YPPBFRGP6D"
-};
-firebase.initializeApp(firebaseConfig);
-firebase.analytics();
-
-//Initialize variables and db and get references
-const db_ref = firebase.database().ref(); 
+//initializing vars
 var curr_path = "/";
+var purpose_select_ref = document.getElementById('purpose_select');
+var type_select_ref = document.getElementById('type_select');
+var threshold_levels_ref = document.getElementById("threshold_levels");
 var gas_levels_ref = document.getElementById("gas_levels");
 var noise_levels_ref = document.getElementById("noise_levels");
-var fire_levels_ref = document.getElementById("fire_levels");
 var ambient_noise_ref = document.getElementById("ambient_noise");
+var fire_levels_ref = document.getElementById("fire_levels");
 var grahams_ratio_ref = document.getElementById("grahams_ratio");
-var bar_div_ref = document.getElementById('grahams_meter');
-var safety_status_ref = document.getElementById('safety_status_text');
+var grahams_meter_ref = document.getElementById('grahams_meter');
+var safety_status_title_ref = document.getElementById('safety_status_title');
+var safety_status_text_ref = document.getElementById('safety_status_text');
+var historical_data_ref = document.getElementById('historical_data');
+var gas_levels_hd_ref = document.getElementById("gas_levels_hd");
+var noise_levels_hd_ref = document.getElementById("noise_levels_hd");
+var fire_levels_hd_ref = document.getElementById("fire_levels_hd");
+var graph_hd_red = document.getElementById("graph_hd");
 
 //Open my twitter profile
 function openTwitter(){
@@ -41,10 +26,17 @@ function openTwitter(){
 function hideAllDivs(){
     gas_levels_ref.style.display = "none";
     noise_levels_ref.style.display = "none";
-    fire_levels_ref.style.display = "none";
     ambient_noise_ref.style.display = "none";
+    fire_levels_ref.style.display = "none";
+    safety_status_title_ref.style.display = "none";
+    safety_status_text_ref.style.display = "none";
     grahams_ratio_ref.style.display = "none";
-    bar_div_ref.style.display = "none";
+    grahams_meter_ref.style.display = "none";
+
+    gas_levels_hd_ref.style.display = "none";
+    noise_levels_hd_ref.style.display = "none";
+    fire_levels_hd_ref.style.display = "none";
+    graph_hd_red.style.display = "none";
 }
 
 //Hide all noise divs
@@ -55,7 +47,7 @@ function hideNoiseDivs(){
 //Hide all fire divs
 function hideFireDivs(){
     grahams_ratio_ref.style.display = "none";
-    bar_div_ref.style.display = "none";
+    grahams_meter_ref.style.display = "none";
 }
 
 //Hide all specific divs and then load options with root path '/' and next element of id purpose_select
@@ -94,33 +86,59 @@ function selectedOption(curr_select_string_ref, next_select_string_ref, addToPat
 }
 
 //Get value of type option chosen and show/hide aprropriate div blocks
-function selectedTypeOption(curr_select_string_ref, addToPath) {
+function selectedTypeOption() {
     hideAllDivs();
-    var curr_select_dom_value = document.getElementById(curr_select_string_ref).value;
-    if(curr_select_dom_value == "Gas Levels"){
-        gas_levels_ref.style.display = "block";
-        next_select_string_ref = 'gas_select';
+
+    var next_select_string_ref = '';
+    var purpose_select_val = purpose_select_ref.value;
+    var type_select_val = type_select_ref.value;
+
+    if(purpose_select_ref.value == 'Threshold Levels'){
+        console.log('Threshold');
+        safety_status_text_ref.style.display = "block";
+        safety_status_title_ref.style.display = "block";
+        if(type_select_ref.value == "Gas Levels"){
+            console.log('Gas');
+            gas_levels_ref.style.display = "block";
+            next_select_string_ref = 'gas_select';
+        }
+        else if(type_select_ref.value == "Noise Levels"){
+            noise_levels_ref.style.display = "block";
+            next_select_string_ref = 'noise_type_select';
+        }
+        else if(type_select_ref.value == "Fire Levels"){
+            fire_levels_ref.style.display = "block";
+            next_select_string_ref = 'fire_ratio_select';
+        }
     }
-    else if(curr_select_dom_value == "Noise Levels"){
-        noise_levels_ref.style.display = "block";
-        next_select_string_ref = 'noise_type_select';
+    else if(purpose_select_val == 'Historical Data'){
+        console.log('Historical Data');
+        if(type_select_val == "Gas Levels"){
+            gas_levels_hd_ref.style.display = "block";
+            next_select_string_ref = 'gas_select_hd';
+        }
+        else if(type_select_val == "Noise Levels"){
+            noise_levels_hd_ref.style.display = "block";
+            next_select_string_ref = 'noise_type_select_hd';
+        }
+        else if(type_select_val == "Fire Levels"){
+            fire_levels_hd_ref.style.display = "block";
+            next_select_string_ref = 'fire_ratio_select_hd';
+        }
     }
-    else if(curr_select_dom_value == "Fire Levels"){
-        fire_levels_ref.style.display = "block";
-        next_select_string_ref = 'fire_ratio_select';
-    }
-    selectedOption(curr_select_string_ref, next_select_string_ref, addToPath);
+    
+    selectedOption('type_select', next_select_string_ref, true);
 }
 
 //Get value of type option chosen and show/hide aprropriate div blocks
 function selectedNoiseOption(curr_select_string_ref, addToPath) {
     hideNoiseDivs();
-    var curr_select_dom_value = document.getElementById(curr_select_string_ref).value;
-    if(curr_select_dom_value == "Ambient Noise Levels"){
+    var type_select_ref = document.getElementById(curr_select_string_ref).value;
+    if(type_select_ref == "Ambient Noise Levels"){
         ambient_noise_ref.style.display = "block";
         next_select_string_ref = 'time_select';
     }
-    else if(curr_select_dom_value == "OSHA"){
+    else if(type_select_ref == "OSHA"){
         ambient_noise_ref.style.display = "none";
         next_select_string_ref = '';
     }
@@ -130,8 +148,8 @@ function selectedNoiseOption(curr_select_string_ref, addToPath) {
 //Get value of type option chosen and show/hide aprropriate div blocks
 function selectedFireOption(curr_select_string_ref, addToPath) {
     hideFireDivs();
-    var curr_select_dom_value = document.getElementById(curr_select_string_ref).value;
-    if(curr_select_dom_value == "Graham's Ratio"){
+    var type_select_ref = document.getElementById(curr_select_string_ref).value;
+    if(type_select_ref == "Graham's Ratio"){
         grahams_ratio_ref.style.display = "block";
         next_select_string_ref = '';
     }
@@ -145,6 +163,8 @@ function checkGasSafetyStatus() {
     var unit_text_string;
 
     var gas_conc_val = document.getElementById('gas_input_input').value;
+    var gas_name_select = document.getElementById('gas_select').value;
+    var gas_unit_select = document.getElementById('unit_select').value;
 
     //need to add ppm into path since we avoid it in the unit selection part
     if(!curr_path.includes('ppm')) 
@@ -167,20 +187,27 @@ function checkGasSafetyStatus() {
 
         //If input concentration is les sthan minimum then safe and if more than maximum then fatal
         if(gas_conc_int < key_list[0])
-            safety_status_ref.textContent = "All safe";
+            safety_status_text_ref.textContent = "All safe";
         else if(gas_conc_int > key_list[key_list.length-1])
-            safety_status_ref.textContent = "Fatal";
+            safety_status_text_ref.textContent = "Fatal";
         else{
             for(var i = 0; i < key_list.length; i++) {
                 if(gas_conc_int <= key_list[i]){
-                    safety_status_ref.textContent = map.get(key_list[i]);
+                    safety_status_text_ref.textContent = map.get(key_list[i]);
                     console.log(`${key_list[i]} | ${map.get(key_list[i])}`);
                     break;
                 }
             }
         }
         
-        db_ref.child(curr_path.replace("Threshold Levels", "Historical Data")).push({ gas_conc: parseInt(gas_conc_val) });
+        //Add auto gen key with full deets as key-value pair
+        db_ref.child('Historical Data/Gas Levels/').push({ 
+            time_stamp : Math.round((new Date()).getTime() / 1000),
+            gas_name: gas_name_select,
+            gas_conc: parseInt(gas_conc_val),
+            gas_unit: gas_unit_select,
+            safety_status: safety_status_text_ref.textContent
+        });
     });
 }
 
@@ -190,10 +217,12 @@ function checkNoiseSafetyStatus() {
     var map = new Map();
     var val_list = [];
     var key_list = [];
-    var threshold_noise, area_text, loudness_input_text_int;
+    var threshold_noise, loudness_input_text_int;
 
     var noise_option_dom_value = document.getElementById('noise_type_select').value;
     var loudness_val = document.getElementById('loudness_input_input').value;
+    var area_text = document.getElementById('area_select').value;
+    var day_time = document.getElementById('time_select').value;
 
     if(noise_option_dom_value == "Ambient Noise Levels"){
         db_ref.child(curr_path).once("value", function(snapshot) {
@@ -205,18 +234,24 @@ function checkNoiseSafetyStatus() {
             console.log(map);
             console.log(val_list);
     
-            area_text = document.getElementById('area_select').value;
             loudness_input_text_int = parseFloat(loudness_val);
             for (let [key, value] of map.entries()) {
                 if (value === area_text)
                     threshold_noise = key;
             }
             if(loudness_input_text_int <= threshold_noise)
-                safety_status_ref.textContent = 'Safe';
+                safety_status_text_ref.textContent = 'Safe';
             else
-                safety_status_ref.textContent = 'UnSafe';
+                safety_status_text_ref.textContent = 'UnSafe';
             
-            db_ref.child(curr_path.replace("Threshold Levels", "Historical Data")+area_text+'/').push({ loudness: parseInt(loudness_val) });
+            //Add auto gen key with full deets as key-value pair
+            db_ref.child('Historical Data/Noise Levels/Ambient Noise Levels').push({ 
+                time_stamp : Math.round((new Date()).getTime() / 1000),
+                day_time: day_time,
+                area_name: area_text,
+                loudness: parseInt(loudness_val),
+                safety_status: safety_status_text_ref.textContent
+            });
         });
     }
     else if(noise_option_dom_value == "OSHA"){
@@ -234,19 +269,24 @@ function checkNoiseSafetyStatus() {
     
             loudness_input_text_int = parseFloat(loudness_val);
             if(loudness_input_text_int <= key_list[0])
-                safety_status_ref.textContent = `Safe`;
+                safety_status_text_ref.textContent = `Safe`;
             else if(loudness_input_text_int > key_list[key_list.length-1])
-                safety_status_ref.textContent = `Completely UnSafe`;
+                safety_status_text_ref.textContent = `Completely UnSafe`;
             else{
                 for(var i = 0; i < key_list.length; i++) {
                     if(loudness_input_text_int <= key_list[i]){
-                        safety_status_ref.textContent = `UnSafe after ${map.get(key_list[i])} hours`;
+                        safety_status_text_ref.textContent = `UnSafe after ${map.get(key_list[i])} hours`;
                         break;
                     }
                 }
             }
 
-            db_ref.child(curr_path.replace("Threshold Levels", "Historical Data")).push({ loudness: parseInt(loudness_val) });
+            //Add auto gen key with full deets as key-value pair
+            db_ref.child('Historical Data/Noise Levels/OSHA').push({ 
+                time_stamp : Math.round((new Date()).getTime() / 1000),
+                loudness: parseInt(loudness_val),
+                safety_status: safety_status_text_ref.textContent
+            });
         });
     }
 }
@@ -277,22 +317,22 @@ function checkFireSafetyStatus() {
             var n2_input_text_int = parseFloat(document.getElementById('n2_conc_input').value);
             grahams_ratio_value = ((100 * co_input_text_int) / ((0.265 * n2_input_text_int) - o2_input_text_int)).toFixed(1);
             seg_length = 100/(val_list.length);
-            safety_status_ref.textContent = grahams_ratio_value;
+            safety_status_text_ref.textContent = grahams_ratio_value;
 
             if(grahams_ratio_value > val_list[0]){
-                safety_status_ref.textContent += `\nActive Fire`;
+                safety_status_text_ref.textContent += `\nActive Fire`;
                 indicator_ref.style.marginLeft = `${0}%`;
                 indicator_ref.style.marginRight = `${85}%`;
             }
             else if(grahams_ratio_value < val_list[val_list.length-1]){
-                safety_status_ref.textContent += `\nSafe`;
+                safety_status_text_ref.textContent += `\nSafe`;
                 indicator_ref.style.marginLeft = `${85}%`;
                 indicator_ref.style.marginRight = `${0}%`;
             }
             else{
                 for(var i = 0; i < val_list.length; i++) {
                     if(grahams_ratio_value > val_list[i]){
-                        safety_status_ref.textContent += `\n${map.get(val_list[i])}`;
+                        safety_status_text_ref.textContent += `\n${map.get(val_list[i])}`;
                         var m_l = 0 + (i * seg_length);
                         indicator_ref.style.marginLeft = `${m_l}%`;
                         indicator_ref.style.marginRight = `${100 - seg_length - m_l}%`;
@@ -301,7 +341,12 @@ function checkFireSafetyStatus() {
                 }
             }
 
-            db_ref.child(curr_path.replace("Threshold Levels", "Historical Data")).push({ gr_value: parseFloat(grahams_ratio_value) });
+            //Add auto gen key with full deets as key-value pair
+            db_ref.child("Historical Data/Fire Levels/Graham's Ratio").push({ 
+                time_stamp : Math.round((new Date()).getTime() / 1000),
+                gr_value: parseFloat(grahams_ratio_value),
+                safety_status: safety_status_text_ref.textContent
+            });
         });
     }
 }
@@ -309,7 +354,7 @@ function checkFireSafetyStatus() {
 function barSplit(keys_list){
     var bar_div_seg_ref = document.getElementById('grahams_meter_seg');
     
-    bar_div_ref.style.display = "block";
+    grahams_meter_ref.style.display = "block";
 
     var r_int = 255;
     var g_int = 0;

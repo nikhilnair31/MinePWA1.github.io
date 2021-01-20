@@ -2,6 +2,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-analytics.js"></script>
+<script src="src/Chart.min.js"></script>
 
 <html lang="en">
 
@@ -29,7 +30,7 @@
         </br>
         
         <label id="type_label">Type </label></br>
-        <select id="type_select" onchange="selectedTypeOption('type_select', true)">
+        <select id="type_select" onchange="selectedTypeOption()">
             <option>-</option>
         </select>
 
@@ -44,6 +45,7 @@
                 <label id="unit_label"> What Unit? </label></br>
                 <select id="unit_select" onchange="selectedOption('unit_select', '', false)">
                     <option>-</option>
+                    <option>%</option>
                 </select>
                 </br>
                 <label id="gas_input_label"> Gas Concentration </label></br>
@@ -103,16 +105,51 @@
                 <button type="button" onclick="checkFireSafetyStatus()">Check Fire Safety Status</button>
                 </br>
             </div>
+
+            <h3 id="safety_status_title">Safety Status</h3>
+            <p id="safety_status_text">???</p>
+
+            <div id="grahams_meter">
+                <div id="grahams_meter_seg"></div>
+                <div id="indicator"> ^ </div>
+            </div>
         </div>
 
-        <h3 id="safety_status_title">Safety Status</h3>
-        <p id="safety_status_text">???</p>
+        <div id="historical_data">
+            <div id="gas_levels_hd">
+                <p>Gas Levels Historical Data</p>
+                <label> Which Gas? </label></br>
+                <select id="gas_select_hd" onchange="selectedOption('gas_select_hd', '', true)">
+                    <option>-</option>
+                </select>
+                </br>
+            </div>
 
-        <div id="grahams_meter">
-            <div id="grahams_meter_seg"></div>
-            <div id="indicator"> ^ </div>
+            <div id="noise_levels_hd">
+                <p>Noises Levels Historical Data</p>
+                <label>What Option? </label></br>
+                <select id="noise_type_select_hd" onchange="selectedNoiseOption('noise_type_select_hd', '', true)">
+                    <option>-</option>
+                </select>
+                </br>
+            </div>
+
+            <div id="fire_levels_hd">
+                <p>Fire Levels Historical Data</p>
+                <label>Which Gas Ratio</label></br>
+                <select id="fire_ratio_select_hd" onchange="selectedFireOption('fire_ratio_select_hd', true)">
+                    <option>-</option>
+                </select>
+                </br>
+            </div>
+
+            <button type="button" onclick="buildGraph()">Build Historical Graph</button>
+
+            <canvas id="graph_hd" width="100%" height="100%"></canvas>
+            <script src="src/historical_graph.js"></script>
         </div>
 
+        <script src="src/initialize.js"></script>
         <script src="src/index.js"></script>
         <script src="src/connection.js"></script>
     </body>
