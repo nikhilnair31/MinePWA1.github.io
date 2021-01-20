@@ -1,4 +1,4 @@
-window.addEventListener('online', handleConnection);
+//Event listeners to check for connection status changes
 window.addEventListener('offline', handleConnection);
 
 //Get conn status ref and show online or offline status
@@ -14,23 +14,12 @@ else{
 
 function handleConnection() {
     if (navigator.onLine) {
-        isReachable(getServerUrl()).then(function(online) {
-            if (online) {
-                console.log('online');
-                conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#8ad6cc 0px 0px 0px) saturate(1000%)");
-                conn_status_icon.src = "../images/wifi_conn.png";
-            } 
-            else {
-                console.log('offline');
-                conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
-                conn_status_icon.src = "../images/wifi_disconn.png";
-            }
+        isReachable(window.location.origin).then(function(online) {
+            connStatusSwitch(online);
         });
     } 
     else {
-        console.log('offline');
-        conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
-        conn_status_icon.src = "../images/wifi_disconn.png";
+        connStatusSwitch(false);
     }
 }
 
@@ -44,6 +33,15 @@ function isReachable(url) {
         });
 }
 
-function getServerUrl() {
-    return window.location.origin;
+function connStatusSwitch(isOnline) {
+    if (isOnline) {
+        console.log('online');
+        conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#8ad6cc 0px 0px 0px) saturate(1000%)");
+        conn_status_icon.src = "../images/wifi_conn.png";
+    } 
+    else {
+        console.log('offline');
+        conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
+        conn_status_icon.src = "../images/wifi_disconn.png";
+    }
 }
