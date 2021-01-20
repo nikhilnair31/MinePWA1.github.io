@@ -6,6 +6,43 @@ function buildGraph(){
     var graph_hd_ref = document.getElementById("graph_hd");
     graph_hd_ref.style.display = "block";
 
+    var options = {
+        responsive: true,
+        title: {
+          display: true,
+          position: "top",
+          text:"Historical Data",
+          fontSize: 18,
+          fontColor: "#111"
+        },
+        legend: {
+          display: true,
+          position: "bottom",
+          labels: {
+            fontColor: "#333",
+            fontSize: 16
+          }
+        },
+        scales: {
+            xAxes: {
+                type: 'time',
+                time: {
+                    displayFormats: {
+                        'millisecond': 'MMM DD',
+                        'second': 'MMM DD',
+                        'minute': 'MMM DD',
+                        'hour': 'MMM DD',
+                        'day': 'MMM DD',
+                        'week': 'MMM DD',
+                        'month': 'MMM DD',
+                        'quarter': 'MMM DD',
+                        'year': 'MMM DD'
+                    }
+                }
+            }
+        }
+    };
+
     db_ref.child(curr_path).once("value", function(snapshot) {
         snapshot.forEach(function(child) {
             time_stamp_list.push(getTimeString(child.val().time_stamp));
@@ -38,30 +75,7 @@ function buildGraph(){
                     pointBorderWidth: 1,
                 }]
             },
-            options: {
-                title:{
-                    display: true,
-                    text:"Historical Data"
-                },
-                scales: {
-                    xAxes: {
-                        type: 'time',
-                        time: {
-                            displayFormats: {
-                                'millisecond': 'MMM DD',
-                                'second': 'MMM DD',
-                                'minute': 'MMM DD',
-                                'hour': 'MMM DD',
-                                'day': 'MMM DD',
-                                'week': 'MMM DD',
-                                'month': 'MMM DD',
-                                'quarter': 'MMM DD',
-                                'year': 'MMM DD'
-                            }
-                        }
-                    }
-                }
-            }
+            options: options
         });
     });
 }

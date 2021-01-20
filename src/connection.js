@@ -2,25 +2,35 @@ window.addEventListener('online', handleConnection);
 window.addEventListener('offline', handleConnection);
 
 //Get conn status ref and show online or offline status
-var conn_status_dot = document.getElementById("conn_dot");
-conn_status_dot.style.backgroundColor = (window.navigator.onLine) ? "#8ad6cc" : "#f97171";
+var conn_status_icon = document.getElementById("conn_icon");
+if(window.navigator.onLine){
+    conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#8ad6cc 0px 0px 0px) saturate(1000%)");
+    conn_status_icon.src = "../images/wifi_conn.png";
+}
+else{
+    conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
+    conn_status_icon.src = "../images/wifi_disconn.png";
+}
 
 function handleConnection() {
     if (navigator.onLine) {
         isReachable(getServerUrl()).then(function(online) {
             if (online) {
                 console.log('online');
-                conn_status_dot.style.backgroundColor  = "#8ad6cc";
+                conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#8ad6cc 0px 0px 0px) saturate(1000%)");
+                conn_status_icon.src = "../images/wifi_conn.png";
             } 
             else {
                 console.log('offline');
-                conn_status_dot.style.backgroundColor  = "#f97171";
+                conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
+                conn_status_icon.src = "../images/wifi_disconn.png";
             }
         });
     } 
     else {
         console.log('offline');
-        conn_status_dot.style.backgroundColor  = "#f97171";
+        conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
+        conn_status_icon.src = "../images/wifi_disconn.png";
     }
 }
 

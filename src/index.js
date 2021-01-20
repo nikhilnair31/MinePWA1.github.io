@@ -115,7 +115,7 @@ function selectedTypeOption() {
     }
     else if(purpose_select_val == 'Historical Data'){
         console.log('Historical Data');
-        button_graph_hd_ref.style.display = "block";
+        button_graph_hd_ref.style.display = "initial";
         if(type_select_val == "Gas Levels"){
             gas_levels_hd_ref.style.display = "block";
             next_select_string_ref = 'gas_select_hd';
