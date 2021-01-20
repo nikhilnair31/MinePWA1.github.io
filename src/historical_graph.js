@@ -1,45 +1,74 @@
 function buildGraph(){
+    var map = new Map();
+    var time_stamp_list = [];
+    var conc_list = [];
+    
     var graph_hd_ref = document.getElementById("graph_hd");
     graph_hd_ref.style.display = "block";
 
-    xlabels = 
+    db_ref.child(curr_path).once("value", function(snapshot) {
+        snapshot.forEach(function(child) {
+            time_stamp_list.push(getTimeString(child.val().time_stamp));
+            conc_list.push(child.val().gas_conc);
+            map.set(child.val().time_stamp, child.val());
+        });
+        console.log(curr_path);
+        console.log(time_stamp_list);
+        console.log(conc_list);
+        console.log(map);
 
-    var myChart = new Chart(graph_hd_ref, {
-        type: 'line',
-        data: {
-            //labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-            labels: xlabels,
-            datasets: [{
-                label: '# of Votes',
-                //data: [12, 19, 3, 5, 2, 3],
-                data: ydata,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
+        xlabels = time_stamp_list;
+        ydata = conc_list;
+
+        var myChart = new Chart(graph_hd_ref, {
+            type: 'line',
+            data: {
+                labels: xlabels,
+                datasets: [{
+                    label: 'Concentration',
+                    data: ydata,
+                    lineTension: 0.1,
+                    fill: true,
+                    borderColor: 'teal',
+                    backgroundColor: 'transparent',
+                    pointBorderColor: 'orange',
+                    pointRadius: 5,
+                    pointHoverRadius: 10,
+                    pointHitRadius: 10,
+                    pointBorderWidth: 1,
                 }]
+            },
+            options: {
+                title:{
+                    display: true,
+                    text:"Historical Data"
+                },
+                scales: {
+                    xAxes: {
+                        type: 'time',
+                        time: {
+                            displayFormats: {
+                                'millisecond': 'MMM DD',
+                                'second': 'MMM DD',
+                                'minute': 'MMM DD',
+                                'hour': 'MMM DD',
+                                'day': 'MMM DD',
+                                'week': 'MMM DD',
+                                'month': 'MMM DD',
+                                'quarter': 'MMM DD',
+                                'year': 'MMM DD'
+                            }
+                        }
+                    }
+                }
             }
-        }
+        });
     });
+}
+
+function getTimeString(timestamp) {
+    var utc = new Date(timestamp * 1000).toUTCString();
+    var d_val = new Date(utc).getDate() + "/" + (new Date(utc).getMonth() + 1) + "/" + new Date(utc).getFullYear() + " " + 
+                new Date(utc).getUTCHours() + ":" + new Date(utc).getUTCMinutes();
+    return d_val;
 }

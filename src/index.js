@@ -15,7 +15,8 @@ var historical_data_ref = document.getElementById('historical_data');
 var gas_levels_hd_ref = document.getElementById("gas_levels_hd");
 var noise_levels_hd_ref = document.getElementById("noise_levels_hd");
 var fire_levels_hd_ref = document.getElementById("fire_levels_hd");
-var graph_hd_red = document.getElementById("graph_hd");
+var button_graph_hd_ref = document.getElementById("button_graph_hd");
+var graph_hd_ref = document.getElementById("graph_hd");
 
 //Open my twitter profile
 function openTwitter(){
@@ -36,7 +37,8 @@ function hideAllDivs(){
     gas_levels_hd_ref.style.display = "none";
     noise_levels_hd_ref.style.display = "none";
     fire_levels_hd_ref.style.display = "none";
-    graph_hd_red.style.display = "none";
+    button_graph_hd_ref.style.display = "none";
+    graph_hd_ref.style.display = "none";
 }
 
 //Hide all noise divs
@@ -113,6 +115,7 @@ function selectedTypeOption() {
     }
     else if(purpose_select_val == 'Historical Data'){
         console.log('Historical Data');
+        button_graph_hd_ref.style.display = "block";
         if(type_select_val == "Gas Levels"){
             gas_levels_hd_ref.style.display = "block";
             next_select_string_ref = 'gas_select_hd';
@@ -160,7 +163,6 @@ function selectedFireOption(curr_select_string_ref, addToPath) {
 function checkGasSafetyStatus() {
     var map = new Map();
     var key_list = [];
-    var unit_text_string;
 
     var gas_conc_val = document.getElementById('gas_input_input').value;
     var gas_name_select = document.getElementById('gas_select').value;
@@ -180,9 +182,8 @@ function checkGasSafetyStatus() {
         console.log(map);
 
         gas_conc_int = parseFloat(gas_conc_val);
-        unit_text_string = document.getElementById('unit_select').value;
         //Convert % to ppm
-        if(unit_text_string == '%')
+        if(gas_unit_select == '%')
             gas_conc_int *= 10000;
 
         //If input concentration is les sthan minimum then safe and if more than maximum then fatal
@@ -201,10 +202,9 @@ function checkGasSafetyStatus() {
         }
         
         //Add auto gen key with full deets as key-value pair
-        db_ref.child('Historical Data/Gas Levels/').push({ 
+        db_ref.child(`Historical Data/Gas Levels/${gas_name_select}`).push({ 
             time_stamp : Math.round((new Date()).getTime() / 1000),
-            gas_name: gas_name_select,
-            gas_conc: parseInt(gas_conc_val),
+            gas_conc: gas_conc_int,
             gas_unit: gas_unit_select,
             safety_status: safety_status_text_ref.textContent
         });
