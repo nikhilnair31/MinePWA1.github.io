@@ -86,6 +86,10 @@ p {
     margin-bottom: 20px;
 }
 
+#safety_status_text {
+    white-space: pre-line;
+}
+
 h1 {
     font-family: 'Comfortaa', cursive;
     color: white;
@@ -105,8 +109,22 @@ h3 {
 
 body {
     text-align:center;
-    width: 50%;
+    /* width: 50%; */
     margin: 0 auto;
+}
+
+#bg {
+    /* The image used */
+    background-image: url("images/bg.jpg");
+    /* Add the blur effect */
+    filter: blur(8px);
+    -webkit-filter: blur(3px);
+    /* Full height */
+    height: 100%;
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 canvas {

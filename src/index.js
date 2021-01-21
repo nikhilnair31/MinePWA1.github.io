@@ -2,59 +2,38 @@
 var curr_path = "/";
 var purpose_select_ref = document.getElementById('purpose_select');
 var type_select_ref = document.getElementById('type_select');
-var threshold_levels_ref = document.getElementById("threshold_levels");
-var gas_levels_ref = document.getElementById("gas_levels");
-var noise_levels_ref = document.getElementById("noise_levels");
-var ambient_noise_ref = document.getElementById("ambient_noise");
-var fire_levels_ref = document.getElementById("fire_levels");
-var grahams_ratio_ref = document.getElementById("grahams_ratio");
-var grahams_meter_ref = document.getElementById('grahams_meter');
-var safety_status_title_ref = document.getElementById('safety_status_title');
 var safety_status_text_ref = document.getElementById('safety_status_text');
-var historical_data_ref = document.getElementById('historical_data');
-var gas_levels_hd_ref = document.getElementById("gas_levels_hd");
-var noise_levels_hd_ref = document.getElementById("noise_levels_hd");
-var fire_levels_hd_ref = document.getElementById("fire_levels_hd");
 var button_graph_hd_ref = document.getElementById("button_graph_hd");
-var graph_hd_ref = document.getElementById("graph_hd");
 
 //Open my twitter profile
 function openTwitter(){
     window.open('https://twitter.com/_silhouettte_');
 }
 
-//Hide all general divs
-function hideAllDivs(){
-    gas_levels_ref.style.display = "none";
-    noise_levels_ref.style.display = "none";
-    ambient_noise_ref.style.display = "none";
-    fire_levels_ref.style.display = "none";
-    safety_status_title_ref.style.display = "none";
-    safety_status_text_ref.style.display = "none";
-    grahams_ratio_ref.style.display = "none";
-    grahams_meter_ref.style.display = "none";
-
-    gas_levels_hd_ref.style.display = "none";
-    noise_levels_hd_ref.style.display = "none";
-    fire_levels_hd_ref.style.display = "none";
-    button_graph_hd_ref.style.display = "none";
-    graph_hd_ref.style.display = "none";
+//Hide or Show all divs of an id
+function hideOrShowAllById(idToShowOrHide, toShowOrHide){
+    for(var j = 0; j < idToShowOrHide.length; j++){
+        var parentID = document.getElementById(idToShowOrHide[j]);
+        parentID.style.display = toShowOrHide;
+        var innerDiv = parentID.getElementsByTagName('div');
+        for(var i = 0; i < innerDiv.length; i++){
+            var a = innerDiv[i];
+            a.style.display = toShowOrHide;
+        }
+    }
+    console.log(`hideOrShowAllById ${idToShowOrHide} - ${toShowOrHide}`)
 }
 
-//Hide all noise divs
-function hideNoiseDivs(){
-    ambient_noise_ref.style.display = "none";
-}
-
-//Hide all fire divs
-function hideFireDivs(){
-    grahams_ratio_ref.style.display = "none";
-    grahams_meter_ref.style.display = "none";
+//Hide one element by id
+function hideOrShowOneById(idToShowOrHide, toShowOrHide){
+    var parentID = document.getElementById(idToShowOrHide);
+    parentID.style.display = toShowOrHide;
+    console.log(`hideOrShowOneById ${idToShowOrHide} - ${toShowOrHide}`)
 }
 
 //Hide all specific divs and then load options with root path '/' and next element of id purpose_select
 function intialLoadOfOptions(){
-    hideAllDivs();
+    hideOrShowAllById(['threshold_levels', 'historical_data'], 'none');
     loadOfOptions('/', 'purpose_select');
 }
 
@@ -89,60 +68,56 @@ function selectedOption(curr_select_string_ref, next_select_string_ref, addToPat
 
 //Get value of type option chosen and show/hide aprropriate div blocks
 function selectedTypeOption() {
-    hideAllDivs();
+    hideOrShowOneById('threshold_levels', 'none');
+    hideOrShowOneById('historical_data', 'none');
 
     var next_select_string_ref = '';
     var purpose_select_val = purpose_select_ref.value;
     var type_select_val = type_select_ref.value;
 
     if(purpose_select_ref.value == 'Threshold Levels'){
-        console.log('Threshold');
-        safety_status_text_ref.style.display = "block";
-        safety_status_title_ref.style.display = "block";
+        hideOrShowOneById('threshold_levels', 'block');
         if(type_select_ref.value == "Gas Levels"){
-            console.log('Gas');
-            gas_levels_ref.style.display = "block";
+            hideOrShowOneById('gas_levels', 'block');
             next_select_string_ref = 'gas_select';
         }
         else if(type_select_ref.value == "Noise Levels"){
-            noise_levels_ref.style.display = "block";
+            hideOrShowOneById('noise_levels', 'block');
             next_select_string_ref = 'noise_type_select';
         }
         else if(type_select_ref.value == "Fire Levels"){
-            fire_levels_ref.style.display = "block";
+            hideOrShowOneById('fire_levels', 'block');
             next_select_string_ref = 'fire_ratio_select';
         }
     }
     else if(purpose_select_val == 'Historical Data'){
-        console.log('Historical Data');
         button_graph_hd_ref.style.display = "initial";
+        hideOrShowOneById('historical_data', 'block');
         if(type_select_val == "Gas Levels"){
-            gas_levels_hd_ref.style.display = "block";
+            hideOrShowOneById('gas_levels_hd', 'block');
             next_select_string_ref = 'gas_select_hd';
         }
         else if(type_select_val == "Noise Levels"){
-            noise_levels_hd_ref.style.display = "block";
+            hideOrShowOneById('noise_levels_hd', 'block');
             next_select_string_ref = 'noise_type_select_hd';
         }
         else if(type_select_val == "Fire Levels"){
-            fire_levels_hd_ref.style.display = "block";
+            hideOrShowOneById('fire_levels_hd', 'block');
             next_select_string_ref = 'fire_ratio_select_hd';
         }
     }
-    
     selectedOption('type_select', next_select_string_ref, true);
 }
 
 //Get value of type option chosen and show/hide aprropriate div blocks
 function selectedNoiseOption(curr_select_string_ref, addToPath) {
-    hideNoiseDivs();
     var type_select_ref = document.getElementById(curr_select_string_ref).value;
     if(type_select_ref == "Ambient Noise Levels"){
-        ambient_noise_ref.style.display = "block";
+        hideOrShowOneById('ambient_noise', 'block');
         next_select_string_ref = 'time_select';
     }
     else if(type_select_ref == "OSHA"){
-        ambient_noise_ref.style.display = "none";
+        hideOrShowOneById('ambient_noise', 'none');
         next_select_string_ref = '';
     }
     selectedOption(curr_select_string_ref, next_select_string_ref, addToPath);
@@ -150,10 +125,9 @@ function selectedNoiseOption(curr_select_string_ref, addToPath) {
 
 //Get value of type option chosen and show/hide aprropriate div blocks
 function selectedFireOption(curr_select_string_ref, addToPath) {
-    hideFireDivs();
     var type_select_ref = document.getElementById(curr_select_string_ref).value;
     if(type_select_ref == "Graham's Ratio"){
-        grahams_ratio_ref.style.display = "block";
+        hideOrShowAllById(['grahams_ratio'], 'block');
         next_select_string_ref = '';
     }
     selectedOption(curr_select_string_ref, next_select_string_ref, addToPath);
@@ -296,7 +270,7 @@ function checkNoiseSafetyStatus() {
 function checkFireSafetyStatus() {
     var map = new Map();
     var val_list = [];
-    var grahams_ratio_value, seg_length;
+    var grahams_ratio_value, seg_length, safety_string;
 
     var fire_ratio_dom_value = document.getElementById('fire_ratio_select').value;
 
@@ -320,19 +294,19 @@ function checkFireSafetyStatus() {
             safety_status_text_ref.textContent = grahams_ratio_value;
 
             if(grahams_ratio_value > val_list[0]){
-                safety_status_text_ref.textContent += `\nActive Fire`;
+                safety_string = `\r\nActive Fire`;
                 indicator_ref.style.marginLeft = `${0}%`;
                 indicator_ref.style.marginRight = `${85}%`;
             }
             else if(grahams_ratio_value < val_list[val_list.length-1]){
-                safety_status_text_ref.textContent += `\nSafe`;
+                safety_string = `\r\nSafe`;
                 indicator_ref.style.marginLeft = `${85}%`;
                 indicator_ref.style.marginRight = `${0}%`;
             }
             else{
                 for(var i = 0; i < val_list.length; i++) {
                     if(grahams_ratio_value > val_list[i]){
-                        safety_status_text_ref.textContent += `\n${map.get(val_list[i])}`;
+                        safety_string = `\r\n${map.get(val_list[i])}`;
                         var m_l = 0 + (i * seg_length);
                         indicator_ref.style.marginLeft = `${m_l}%`;
                         indicator_ref.style.marginRight = `${100 - seg_length - m_l}%`;
@@ -340,21 +314,22 @@ function checkFireSafetyStatus() {
                     }
                 }
             }
+            safety_status_text_ref.textContent += safety_string;
 
             //Add auto gen key with full deets as key-value pair
             db_ref.child("Historical Data/Fire Levels/Graham's Ratio").push({ 
                 time_stamp : Math.round((new Date()).getTime() / 1000),
                 gr_value: parseFloat(grahams_ratio_value),
-                safety_status: safety_status_text_ref.textContent
+                safety_status: safety_string
             });
         });
     }
 }
 
 function barSplit(keys_list){
+    hideOrShowAllById(['grahams_meter'], 'block');
     var bar_div_seg_ref = document.getElementById('grahams_meter_seg');
-    
-    grahams_meter_ref.style.display = "block";
+    hideOrShowOneById('grahams_meter_seg', 'grid');
 
     var r_int = 255;
     var g_int = 0;

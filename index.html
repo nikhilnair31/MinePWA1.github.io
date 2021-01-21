@@ -2,6 +2,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-auth.js"></script>
 <script src="src/Chart.min.js"></script>
 <script src="src/historical_graph.js"></script>
 
@@ -20,21 +21,25 @@
     </head>
 
     <body onload="intialLoadOfOptions()">
-        <!-- <span id="conn_dot"></span> -->
-        <img id="conn_icon" src="../images/wifi_conn.png"></img>
-        <button id="twitter_button" onclick=openTwitter()></button>
-        <h1>MinePWA1</h1>
+        <div id="title_status_buttons">
+            <!-- <span id="conn_dot"></span> -->
+            <!-- <img id="bg" src="../images/bg.jpg"></img> -->
+            <img id="conn_icon" src="../images/wifi_conn.png"></img>
+            <button id="twitter_button" onclick=openTwitter()></button>
+            <h1>MinePWA1</h1>
+        </div>
 
-        <label id="purpose_label">Purpose </label></br>
-        <select id="purpose_select" onchange="selectedOption('purpose_select', 'type_select', true)">
-            <option> - </option>
-        </select>
-        </br>
-        
-        <label id="type_label">Type </label></br>
-        <select id="type_select" onchange="selectedTypeOption()">
-            <option>-</option>
-        </select>
+        <div id="initial_options">
+            <label id="purpose_label">Purpose </label></br>
+            <select id="purpose_select" onchange="selectedOption('purpose_select', 'type_select', true)">
+                <option> - </option>
+            </select>
+            </br>
+            <label id="type_label">Type </label></br>
+            <select id="type_select" onchange="selectedTypeOption()">
+                <option>-</option>
+            </select>
+        </div>
 
         <div id="threshold_levels">
             <div id="gas_levels">
@@ -130,7 +135,7 @@
             <div id="noise_levels_hd">
                 <p>Noises Levels Historical Data</p>
                 <label>What Option? </label></br>
-                <select id="noise_type_select_hd" onchange="selectedNoiseOption('noise_type_select_hd', '', true)">
+                <select id="noise_type_select_hd" onchange="selectedOption('noise_type_select_hd', '', true)">
                     <option>-</option>
                 </select>
                 </br>
@@ -147,7 +152,7 @@
 
             <button type="button" id="button_graph_hd" onclick="buildGraph()">Build Historical Graph</button>
 
-            <canvas id="graph_hd" width="100%" height="100%"></canvas>
+            <canvas id="graph_hd" width="150px" height="100px"></canvas>
         </div>
 
         <script src="src/initialize.js"></script>
