@@ -4,7 +4,7 @@ self.addEventListener('install', e => {
             //return cache.addAll(["./", "./src/master.css", "./images/Sil_192.png", "./src/connection.js"]);
             return cache.addAll(["./", "index.html", "./src/Chart.min.js", "./src/master.css",
                  "./src/index.js", "./src/initialize.js", "./src/connection.js", "./src/historical_graph.js", 
-                 "./images/Sil_192.png", "./images/wifi_conn.png", "./images/wifi_disconn.png", "./images/bg.jpg"]);
+                 "./images/Sil_192.png", "./images/wifi_conn.png", "./images/wifi_disconn.png", "./images/bg1.jpg", "./images/bg2.jpg"]);
         })
     );
 });

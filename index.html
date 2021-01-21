@@ -21,138 +21,140 @@
     </head>
 
     <body onload="intialLoadOfOptions()">
-        <div id="title_status_buttons">
-            <!-- <span id="conn_dot"></span> -->
-            <!-- <img id="bg" src="../images/bg.jpg"></img> -->
-            <img id="conn_icon" src="../images/wifi_conn.png"></img>
-            <button id="twitter_button" onclick=openTwitter()></button>
-            <h1>MinePWA1</h1>
-        </div>
-
-        <div id="initial_options">
-            <label id="purpose_label">Purpose </label></br>
-            <select id="purpose_select" onchange="selectedOption('purpose_select', 'type_select', true)">
-                <option> - </option>
-            </select>
-            </br>
-            <label id="type_label">Type </label></br>
-            <select id="type_select" onchange="selectedTypeOption()">
-                <option>-</option>
-            </select>
-        </div>
-
-        <div id="threshold_levels">
-            <div id="gas_levels">
-                <p>Gas Levels</p>
-                <label id="gas_label"> Which Gas? </label></br>
-                <select id="gas_select" onchange="selectedOption('gas_select', 'unit_select', true)">
-                    <option>-</option>
-                </select>
-                </br>
-                <label id="unit_label"> What Unit? </label></br>
-                <select id="unit_select" onchange="selectedOption('unit_select', '', false)">
-                    <option>-</option>
-                    <option>%</option>
-                </select>
-                </br>
-                <label id="gas_input_label"> Gas Concentration </label></br>
-                <input type="number" id="gas_input_input">
-                </br>
-                <button type="button" onclick="checkGasSafetyStatus()">Check Gas Safety Status</button>
-                </br>
+        <div id="bg_img"></div>
+        <div id="fg">
+            <div id="title_status_buttons">
+                <!-- <span id="conn_dot"></span> -->
+                <img id="conn_icon" src="../images/wifi_conn.png"></img>
+                <button id="twitter_button" onclick=openTwitter()></button>
+                <h1>MinePWA1</h1>
             </div>
 
-            <div id="noise_levels">
-                <p>Noises Levels</p>
-                <label id="noise_type_label">What Option? </label></br>
-                <select id="noise_type_select" onchange="selectedNoiseOption('noise_type_select', 'time_select', true)">
-                    <option>-</option>
+            <div id="initial_options">
+                <label id="purpose_label">Purpose </label></br>
+                <select id="purpose_select" onchange="selectedOption('purpose_select', 'type_select', true)">
+                    <option> - </option>
                 </select>
                 </br>
-                <div id="ambient_noise">
-                    <label id="time_label">What Time? </label></br>
-                    <select id="time_select" onchange="selectedOption('time_select', 'area_select', true)">
+                <label id="type_label">Type </label></br>
+                <select id="type_select" onchange="selectedTypeOption()">
+                    <option>-</option>
+                </select>
+            </div>
+
+            <div id="threshold_levels">
+                <div id="gas_levels">
+                    <p>Gas Levels</p>
+                    <label id="gas_label"> Which Gas? </label></br>
+                    <select id="gas_select" onchange="selectedOption('gas_select', 'unit_select', true)">
                         <option>-</option>
                     </select>
                     </br>
-                    <label id="area_label">What Area? </label></br>
-                    <select id="area_select" onchange="selectedOption('area_select', '', false)">
+                    <label id="unit_label"> What Unit? </label></br>
+                    <select id="unit_select" onchange="selectedOption('unit_select', '', false)">
+                        <option>-</option>
+                        <option>%</option>
+                    </select>
+                    </br>
+                    <label id="gas_input_label"> Gas Concentration </label></br>
+                    <input type="number" id="gas_input_input">
+                    </br>
+                    <button type="button" onclick="checkGasSafetyStatus()">Check Gas Safety Status</button>
+                    </br>
+                </div>
+
+                <div id="noise_levels">
+                    <p>Noises Levels</p>
+                    <label id="noise_type_label">What Option? </label></br>
+                    <select id="noise_type_select" onchange="selectedNoiseOption('noise_type_select', 'time_select', true)">
+                        <option>-</option>
+                    </select>
+                    </br>
+                    <div id="ambient_noise">
+                        <label id="time_label">What Time? </label></br>
+                        <select id="time_select" onchange="selectedOption('time_select', 'area_select', true)">
+                            <option>-</option>
+                        </select>
+                        </br>
+                        <label id="area_label">What Area? </label></br>
+                        <select id="area_select" onchange="selectedOption('area_select', '', false)">
+                            <option>-</option>
+                        </select>
+                        </br>
+                    </div>
+
+                    <label id="loudness_input_label">Noise in dB(A) : </label></br>
+                    <input type="number" id="loudness_input_input">
+                    </br>
+
+                    <button type="button" onclick="checkNoiseSafetyStatus()">Check Noise Safety Status</button>
+                    </br>
+                </div>
+
+                <div id="fire_levels">
+                    <p>Fire Levels</p>
+                    <label>Which Gas Ratio</label></br>
+                    <select id="fire_ratio_select" onchange="selectedFireOption('fire_ratio_select', true)">
+                        <option>-</option>
+                    </select>
+
+                    <div id="grahams_ratio">
+                        </br>
+                        <label>CO Conc in %</label></br>
+                        <input type="number" id="co_conc_input">
+                        </br>
+                        <label>N2 Conc in %</label></br>
+                        <input type="number" id="n2_conc_input">
+                        </br>
+                        <label>O2 Conc in %</label></br>
+                        <input type="number" id="o2_conc_input">
+                    </div>
+
+                    <button type="button" onclick="checkFireSafetyStatus()">Check Fire Safety Status</button>
+                    </br>
+                </div>
+
+                <h3 id="safety_status_title">Safety Status</h3>
+                <p id="safety_status_text">???</p>
+
+                <div id="grahams_meter">
+                    <div id="grahams_meter_seg"></div>
+                    <div id="indicator"> ^ </div>
+                </div>
+            </div>
+
+            <div id="historical_data">
+                <div id="gas_levels_hd">
+                    <p>Gas Levels Historical Data</p>
+                    <label> Which Gas? </label></br>
+                    <select id="gas_select_hd" onchange="selectedOption('gas_select_hd', '', true)">
                         <option>-</option>
                     </select>
                     </br>
                 </div>
 
-                <label id="loudness_input_label">Noise in dB(A) : </label></br>
-                <input type="number" id="loudness_input_input">
-                </br>
-
-                <button type="button" onclick="checkNoiseSafetyStatus()">Check Noise Safety Status</button>
-                </br>
-            </div>
-
-            <div id="fire_levels">
-                <p>Fire Levels</p>
-                <label>Which Gas Ratio</label></br>
-                <select id="fire_ratio_select" onchange="selectedFireOption('fire_ratio_select', true)">
-                    <option>-</option>
-                </select>
-
-                <div id="grahams_ratio">
+                <div id="noise_levels_hd">
+                    <p>Noises Levels Historical Data</p>
+                    <label>What Option? </label></br>
+                    <select id="noise_type_select_hd" onchange="selectedOption('noise_type_select_hd', '', true)">
+                        <option>-</option>
+                    </select>
                     </br>
-                    <label>CO Conc in %</label></br>
-                    <input type="number" id="co_conc_input">
-                    </br>
-                    <label>N2 Conc in %</label></br>
-                    <input type="number" id="n2_conc_input">
-                    </br>
-                    <label>O2 Conc in %</label></br>
-                    <input type="number" id="o2_conc_input">
                 </div>
 
-                <button type="button" onclick="checkFireSafetyStatus()">Check Fire Safety Status</button>
-                </br>
+                <div id="fire_levels_hd">
+                    <p>Fire Levels Historical Data</p>
+                    <label>Which Gas Ratio</label></br>
+                    <select id="fire_ratio_select_hd" onchange="selectedFireOption('fire_ratio_select_hd', true)">
+                        <option>-</option>
+                    </select>
+                    </br>
+                </div>
+
+                <button type="button" id="button_graph_hd" onclick="buildGraph()">Build Historical Graph</button>
+
+                <canvas id="graph_hd" width="150px" height="100px"></canvas>
             </div>
-
-            <h3 id="safety_status_title">Safety Status</h3>
-            <p id="safety_status_text">???</p>
-
-            <div id="grahams_meter">
-                <div id="grahams_meter_seg"></div>
-                <div id="indicator"> ^ </div>
-            </div>
-        </div>
-
-        <div id="historical_data">
-            <div id="gas_levels_hd">
-                <p>Gas Levels Historical Data</p>
-                <label> Which Gas? </label></br>
-                <select id="gas_select_hd" onchange="selectedOption('gas_select_hd', '', true)">
-                    <option>-</option>
-                </select>
-                </br>
-            </div>
-
-            <div id="noise_levels_hd">
-                <p>Noises Levels Historical Data</p>
-                <label>What Option? </label></br>
-                <select id="noise_type_select_hd" onchange="selectedOption('noise_type_select_hd', '', true)">
-                    <option>-</option>
-                </select>
-                </br>
-            </div>
-
-            <div id="fire_levels_hd">
-                <p>Fire Levels Historical Data</p>
-                <label>Which Gas Ratio</label></br>
-                <select id="fire_ratio_select_hd" onchange="selectedFireOption('fire_ratio_select_hd', true)">
-                    <option>-</option>
-                </select>
-                </br>
-            </div>
-
-            <button type="button" id="button_graph_hd" onclick="buildGraph()">Build Historical Graph</button>
-
-            <canvas id="graph_hd" width="150px" height="100px"></canvas>
         </div>
 
         <script src="src/initialize.js"></script>
