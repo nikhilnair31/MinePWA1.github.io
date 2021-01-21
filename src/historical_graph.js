@@ -68,6 +68,7 @@ function buildGraph(){
                 },
                 tooltips: {
                     enabled: true,
+                    maintainAspectRatio: false,
                     mode: 'nearest',
                     titleAlign: 'left',
                     bodyAlign: 'left',
