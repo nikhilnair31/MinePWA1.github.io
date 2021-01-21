@@ -5,7 +5,7 @@ self.addEventListener('install', e => {
             return cache.addAll(["./", "index.html", "./src/Chart.min.js", "./src/master.css",
                  "./src/index.js", "./src/initialize.js", "./src/connection.js", "./src/historical_graph.js", 
                  "./images/Sil_192.png", "./images/wifi_conn.png", "./images/wifi_disconn.png", 
-                 "./images/bg1.jpg", "./images/bg2.jpg", "./images/bg3.jpg"]);
+                 "./images/bg3.jpg"]);
         })
     );
 });
