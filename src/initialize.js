@@ -21,8 +21,10 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 
-//Initialize variables and db and get references
+//Initialize variables for rtd and get references
 const db_ref = firebase.database().ref(); 
+
+//Initialize variables for firestore, set settings and get references
 // const firestore_ref = firebase.firestore();
 // firestore_ref.settings({
 //     cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED

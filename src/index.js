@@ -2,31 +2,6 @@
 var curr_path = "/";
 var safety_status_text_ref = document.getElementById('safety_status_text');
 
-//Open my twitter profile
-function openTwitter(){
-    window.open('https://twitter.com/_silhouettte_');
-}
-
-//Hide or Show all divs of an id
-function hideOrShowAllById(idToShowOrHide, toShowOrHide){
-    for(var j = 0; j < idToShowOrHide.length; j++){
-        var parentID = document.getElementById(idToShowOrHide[j]);
-        parentID.style.display = toShowOrHide;
-        var innerDiv = parentID.getElementsByTagName('div');
-        for(var i = 0; i < innerDiv.length; i++){
-            var a = innerDiv[i];
-            a.style.display = toShowOrHide;
-        }
-        //console.log(`hideOrShowAllById ${idToShowOrHide} - ${toShowOrHide}`)
-    }
-}
-
-//Hide one element by id
-function hideOrShowOneById(idToShowOrHide, toShowOrHide){
-    document.getElementById(idToShowOrHide).style.display = toShowOrHide;
-    //console.log(`hideOrShowOneById ${idToShowOrHide} - ${toShowOrHide}`)
-}
-
 //Hide all divs in list and then load options with root path '/' and next element of id purpose_select
 function intialLoadOfOptions(){
     hideOrShowAllById(['threshold_levels', 'historical_data'], 'none');
@@ -78,7 +53,7 @@ function loadOfOptions(path, select_string_ref){
 function selectedOption(curr_select_string_ref, next_select_string_ref, addToPath) {
     if(addToPath){
         curr_path += document.getElementById(curr_select_string_ref).value + '/';
-        console.log(`selectedOption curr_path :\n${curr_path}`);
+        debugLogPrint(['selectedOption curr_path', curr_path]);
     }
     loadOfOptions(curr_path, next_select_string_ref);
 }
@@ -161,20 +136,21 @@ function checkGasSafetyStatus() {
         debugLogPrint([curr_path, key_list, map]);
 
         gas_conc_int = parseFloat(gas_conc_val);
+
         //Convert % to ppm
         if(gas_unit_select == '%')
             gas_conc_int *= 10000;
 
-        //If input concentration is les sthan minimum then safe and if more than maximum then fatal
-        if(gas_conc_int < key_list[0])
+        //If input concentration is less than min then safe and if more than max then fatal
+        if(gas_conc_int < Math.min.apply(Math, key_list))
             safety_status_text_ref.textContent = "All safe";
-        else if(gas_conc_int > key_list[key_list.length-1])
+        else if(gas_conc_int > Math.max.apply(Math, key_list))
             safety_status_text_ref.textContent = "Fatal";
         else{
             for(var i = 0; i < key_list.length; i++) {
                 if(gas_conc_int <= key_list[i]){
                     safety_status_text_ref.textContent = map.get(key_list[i]);
-                    console.log(`${key_list[i]} | ${map.get(key_list[i])}`);
+                    debugLogPrint([key_list[i], map.get(key_list[i])]);
                     break;
                 }
             }
@@ -190,12 +166,6 @@ function checkGasSafetyStatus() {
     });
 }
 
-function debugLogPrint(varList){
-    varList.forEach(function(entry) {
-        console.log('%c debugLogPrint -\n', entry, 'color: red; font-weight: bold;');
-    });
-}
-
 //Check noise safety status by using : curr_path to get snapshot, noise_option_dom_value to check wihich noise option is picked
 //input loudness ref for dB(A) and input area ref for type of area
 function checkNoiseSafetyStatus() {
@@ -204,20 +174,17 @@ function checkNoiseSafetyStatus() {
     var key_list = [];
     var threshold_noise, loudness_input_text_int;
 
-    var noise_option_dom_value = document.getElementById('noise_type_select').value;
     var loudness_val = document.getElementById('loudness_input_input').value;
     var area_text = document.getElementById('area_select').value;
     var day_time = document.getElementById('time_select').value;
 
-    if(noise_option_dom_value == "Ambient Noise Levels"){
+    if(document.getElementById('noise_type_select').value == "Ambient Noise Levels"){
         db_ref.child(curr_path).once("value", function(snapshot) {
             snapshot.forEach(function(child) {
                 val_list.push(child.val());
                 map.set(child.val(), child.key);
             });
-            console.log(curr_path);
-            console.log(map);
-            console.log(val_list);
+            debugLogPrint([curr_path, val_list, map]);
     
             loudness_input_text_int = parseFloat(loudness_val);
             for (let [key, value] of map.entries()) {
@@ -239,7 +206,7 @@ function checkNoiseSafetyStatus() {
             });
         });
     }
-    else if(noise_option_dom_value == "OSHA"){
+    else if(document.getElementById('noise_type_select').value == "OSHA"){
         var loudness_input_text_int;
         var loudness_val = document.getElementById('loudness_input_input').value;
 
@@ -248,14 +215,12 @@ function checkNoiseSafetyStatus() {
                 key_list.push(parseFloat(child.key));
                 map.set(parseFloat(child.key), child.val());
             });
-            console.log(curr_path);
-            console.log(map);
-            console.log(key_list);
+            debugLogPrint([curr_path, key_list, map]);
     
             loudness_input_text_int = parseFloat(loudness_val);
-            if(loudness_input_text_int <= key_list[0])
+            if(loudness_input_text_int <= Math.min.apply(Math, key_list))
                 safety_status_text_ref.textContent = `Safe`;
-            else if(loudness_input_text_int > key_list[key_list.length-1])
+            else if(loudness_input_text_int > Math.max.apply(Math, key_list))
                 safety_status_text_ref.textContent = `Completely UnSafe`;
             else{
                 for(var i = 0; i < key_list.length; i++) {
@@ -380,6 +345,27 @@ function checkFireSafetyStatus() {
     }
 }
 
+//Hide or Show all divs of an id
+function hideOrShowAllById(idToShowOrHide, toShowOrHide){
+    for(var j = 0; j < idToShowOrHide.length; j++){
+        var parentID = document.getElementById(idToShowOrHide[j]);
+        parentID.style.display = toShowOrHide;
+        var innerDiv = parentID.getElementsByTagName('div');
+        for(var i = 0; i < innerDiv.length; i++){
+            var a = innerDiv[i];
+            a.style.display = toShowOrHide;
+        }
+        debugLogPrint(['hideOrShowAllById', idToShowOrHide, toShowOrHide]);
+    }
+}
+
+//Hide one element by id
+function hideOrShowOneById(idToShowOrHide, toShowOrHide){
+    document.getElementById(idToShowOrHide).style.display = toShowOrHide;
+    debugLogPrint(['hideOrShowOneById', idToShowOrHide, toShowOrHide]);
+}
+
+//function for bar split??
 function barSplit(keys_list){
     hideOrShowAllById(['grahams_meter'], 'block');
     var bar_div_seg_ref = document.getElementById('grahams_meter_seg');
@@ -407,4 +393,16 @@ function barSplit(keys_list){
         opt.style.backgroundColor  = `rgb(${r_int}, ${g_int}, 0)`;
         bar_div_seg_ref.appendChild(opt);
     }
+}
+
+//function to accept array of objs and print them in console
+function debugLogPrint(varList){
+    varList.forEach(function(entry) {
+        console.log('%c debugLogPrint -\n', 'color: red; font-weight: bold;', entry);
+    });
+}
+
+//Open my twitter profile
+function openTwitter(){
+    window.open('https://twitter.com/_silhouettte_');
 }
