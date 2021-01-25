@@ -23,3 +23,19 @@ firebase.analytics();
 
 //Initialize variables and db and get references
 const db_ref = firebase.database().ref(); 
+// const firestore_ref = firebase.firestore();
+// firestore_ref.settings({
+//     cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+// });
+// firestore_ref.enablePersistence().catch(function(err) {
+//     console.log(err.code);
+//     if (err.code == 'failed-precondition') {
+//         // Multiple tabs open, persistence can only be enabled
+//         // in one tab at a a time.
+//         // ...
+//     } else if (err.code == 'unimplemented') {
+//         // The current browser does not support all of the
+//         // features required to enable persistence
+//         // ...
+//     }
+// });

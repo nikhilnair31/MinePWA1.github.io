@@ -4,6 +4,7 @@ function buildGraph(){
     var time_stamp_list = [];
     var val_list = [];
     var obj_list = [];
+    var type_label;
     
     var graph_hd_ref = document.getElementById("graph_hd");
     graph_hd_ref.style.display = "block";
@@ -16,12 +17,15 @@ function buildGraph(){
             time_stamp_list.push(getTimeString(child.val().time_stamp));
             if(curr_path.includes('Gas')){
                 val_list.push(child.val().gas_conc);
+                type_label = 'Gas Concentration';
             }
             else if(curr_path.includes('Noise')){
                 val_list.push(child.val().loudness);
+                type_label = 'Noise Loudness';
             }
             else if(curr_path.includes('Fire')){
                 val_list.push(child.val().gr_value);
+                type_label = 'Gas Ratio';
             }
             
         });
@@ -37,7 +41,7 @@ function buildGraph(){
         var main_data = {
             labels: xlabels,
             datasets: [{
-                label: 'Concentration/Loudness/GR',
+                label: type_label,
                 data: ydata,
                 lineTension: 0.2,
                 fill: true,
@@ -63,7 +67,7 @@ function buildGraph(){
                     display: true,
                     position: "top",
                     text:"Historical Data",
-                    fontSize: 18,
+                    fontSize: 14,
                     fontColor: "white"
                 },
                 tooltips: {
@@ -89,8 +93,8 @@ function buildGraph(){
                   display: true,
                   position: "bottom",
                   labels: {
-                    fontColor: "#333",
-                    fontSize: 16
+                    fontColor: "white",
+                    fontSize: 14
                   }
                 },
                 scales: {

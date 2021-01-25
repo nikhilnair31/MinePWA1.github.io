@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-analytics.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-auth.js"></script>
 <script src="src/Chart.min.js"></script>
+<script src="src/jquery.min.js"></script>
+<script src="src/db.js"></script>
 <script src="src/historical_graph.js"></script>
 
 <html lang="en">
@@ -17,7 +20,9 @@
         <link rel="manifest" href="manifest.json">
         <link rel="apple-touch-icon" href="images/Sil_512.png">
         <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="http://fonts.cdnfonts.com/css/marvin" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&display=swap" rel="stylesheet">
+        <link href="https://db.onlinewebfonts.com/c/537c29c4b78689a51f1c48cd802a503f?family=ITC+Grouch" rel="stylesheet"/>
     </head>
 
     <body onload="intialLoadOfOptions()">
@@ -34,6 +39,8 @@
                 <label id="purpose_label">Purpose </label></br>
                 <select id="purpose_select" onchange="selectedOption('purpose_select', 'type_select', true)">
                     <option> - </option>
+                    <!-- <option> Threshold Levels </option>
+                    <option> Historical Data </option> -->
                 </select>
                 </br>
                 <label id="type_label">Type </label></br>
@@ -53,7 +60,8 @@
                     <label id="unit_label"> What Unit? </label></br>
                     <select id="unit_select" onchange="selectedOption('unit_select', '', false)">
                         <option>-</option>
-                        <option>%</option>
+                        <!-- <option>ppm</option>
+                        <option>%</option> -->
                     </select>
                     </br>
                     <label id="gas_input_label"> Gas Concentration </label></br>
@@ -66,7 +74,7 @@
                 <div id="noise_levels">
                     <p>Noises Levels</p>
                     <label id="noise_type_label">What Option? </label></br>
-                    <select id="noise_type_select" onchange="selectedNoiseOption('noise_type_select', 'time_select', true)">
+                    <select id="noise_type_select" onchange="selectedGFNOption('noise_type_select', 'time_select', true)">
                         <option>-</option>
                     </select>
                     </br>
@@ -74,11 +82,17 @@
                         <label id="time_label">What Time? </label></br>
                         <select id="time_select" onchange="selectedOption('time_select', 'area_select', true)">
                             <option>-</option>
+                            <!-- <option>Day Time</option>
+                            <option>Night Time</option> -->
                         </select>
                         </br>
                         <label id="area_label">What Area? </label></br>
                         <select id="area_select" onchange="selectedOption('area_select', '', false)">
                             <option>-</option>
+                            <!-- <option>Commercial Area</option>
+                            <option>Industrial Area</option>
+                            <option>Residential Area</option>
+                            <option>Silence Zone</option> -->
                         </select>
                         </br>
                     </div>
@@ -94,7 +108,7 @@
                 <div id="fire_levels">
                     <p>Fire Levels</p>
                     <label>Which Gas Ratio</label></br>
-                    <select id="fire_ratio_select" onchange="selectedFireOption('fire_ratio_select', true)">
+                    <select id="fire_ratio_select" onchange="selectedGFNOption('fire_ratio_select', true)">
                         <option>-</option>
                     </select>
 

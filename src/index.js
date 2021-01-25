@@ -1,9 +1,6 @@
 //initializing vars
 var curr_path = "/";
-var purpose_select_ref = document.getElementById('purpose_select');
-var type_select_ref = document.getElementById('type_select');
 var safety_status_text_ref = document.getElementById('safety_status_text');
-var button_graph_hd_ref = document.getElementById("button_graph_hd");
 
 //Open my twitter profile
 function openTwitter(){
@@ -20,18 +17,17 @@ function hideOrShowAllById(idToShowOrHide, toShowOrHide){
             var a = innerDiv[i];
             a.style.display = toShowOrHide;
         }
+        //console.log(`hideOrShowAllById ${idToShowOrHide} - ${toShowOrHide}`)
     }
-    console.log(`hideOrShowAllById ${idToShowOrHide} - ${toShowOrHide}`)
 }
 
 //Hide one element by id
 function hideOrShowOneById(idToShowOrHide, toShowOrHide){
-    var parentID = document.getElementById(idToShowOrHide);
-    parentID.style.display = toShowOrHide;
-    console.log(`hideOrShowOneById ${idToShowOrHide} - ${toShowOrHide}`)
+    document.getElementById(idToShowOrHide).style.display = toShowOrHide;
+    //console.log(`hideOrShowOneById ${idToShowOrHide} - ${toShowOrHide}`)
 }
 
-//Hide all specific divs and then load options with root path '/' and next element of id purpose_select
+//Hide all divs in list and then load options with root path '/' and next element of id purpose_select
 function intialLoadOfOptions(){
     hideOrShowAllById(['threshold_levels', 'historical_data'], 'none');
     loadOfOptions('/', 'purpose_select');
@@ -40,8 +36,10 @@ function intialLoadOfOptions(){
 //Populate select reference based on path and ref
 function loadOfOptions(path, select_string_ref){
     var options = [];
+
+    //include  (&& path != '/') for firestore
     if(select_string_ref != ''){
-        var select_dom_ref = document.getElementById(select_string_ref);
+        //get k/v by path from rtd
         db_ref.child(path).once("value", function(snapshot) {
             snapshot.forEach(function(child) {
                 options.push(child.key);
@@ -50,18 +48,37 @@ function loadOfOptions(path, select_string_ref){
                 var opt = document.createElement('option');
                 opt.innerHTML = options[i];
                 opt.value = options[i];
-                select_dom_ref.appendChild(opt);
+                document.getElementById(select_string_ref).appendChild(opt);
             }
         });
+        
+        //odd number of things in path to get docs by path from firestore
+        {
+            // firestore_ref.collection(path).get().then((snapshot) => {
+            //     const data = snapshot.docs.map((doc) => ({
+            //         id: doc.id,
+            //         ...doc.data(),
+            //     }));
+            //     console.log(`All data in collection\n ${JSON.stringify( data )}`); 
+            //     for(var j = 0; j < data.length; j++) {
+            //         options.push(data[j].id);
+            //     }
+            //     for(var i = 0; i < options.length; i++) {
+            //         var opt = document.createElement('option');
+            //         opt.innerHTML = options[i];
+            //         opt.value = options[i];
+            //         select_dom_ref.appendChild(opt);
+            //     }
+            // });
+        }
     }
 }
 
 //Get path to selected node and pass to other function to fill select with options
 function selectedOption(curr_select_string_ref, next_select_string_ref, addToPath) {
     if(addToPath){
-        var curr_select_dom_ref = document.getElementById(curr_select_string_ref);
-        curr_path += curr_select_dom_ref.value + '/';
-        console.log(`curr_path : ${curr_path}`);
+        curr_path += document.getElementById(curr_select_string_ref).value + '/';
+        console.log(`selectedOption curr_path :\n${curr_path}`);
     }
     loadOfOptions(curr_path, next_select_string_ref);
 }
@@ -72,26 +89,24 @@ function selectedTypeOption() {
     hideOrShowOneById('historical_data', 'none');
 
     var next_select_string_ref = '';
-    var purpose_select_val = purpose_select_ref.value;
-    var type_select_val = type_select_ref.value;
 
-    if(purpose_select_ref.value == 'Threshold Levels'){
+    if(document.getElementById('purpose_select').value == 'Threshold Levels'){
         hideOrShowOneById('threshold_levels', 'block');
-        if(type_select_ref.value == "Gas Levels"){
+        if(document.getElementById('type_select').value == "Gas Levels"){
             hideOrShowOneById('gas_levels', 'block');
             next_select_string_ref = 'gas_select';
         }
-        else if(type_select_ref.value == "Noise Levels"){
+        else if(document.getElementById('type_select').value == "Noise Levels"){
             hideOrShowOneById('noise_levels', 'block');
             next_select_string_ref = 'noise_type_select';
         }
-        else if(type_select_ref.value == "Fire Levels"){
+        else if(document.getElementById('type_select').value == "Fire Levels"){
             hideOrShowOneById('fire_levels', 'block');
             next_select_string_ref = 'fire_ratio_select';
         }
     }
-    else if(purpose_select_val == 'Historical Data'){
-        button_graph_hd_ref.style.display = "initial";
+    else if(document.getElementById('purpose_select').value == 'Historical Data'){
+        document.getElementById("button_graph_hd").style.display = "initial";
         hideOrShowOneById('historical_data', 'block');
         if(type_select_val == "Gas Levels"){
             hideOrShowOneById('gas_levels_hd', 'block');
@@ -110,24 +125,17 @@ function selectedTypeOption() {
 }
 
 //Get value of type option chosen and show/hide aprropriate div blocks
-function selectedNoiseOption(curr_select_string_ref, addToPath) {
-    var type_select_ref = document.getElementById(curr_select_string_ref).value;
-    if(type_select_ref == "Ambient Noise Levels"){
+function selectedGFNOption(curr_select_string_ref, addToPath) {
+    if(document.getElementById(curr_select_string_ref).value == "Graham's Ratio"){
+        hideOrShowAllById(['grahams_ratio'], 'block');
+        next_select_string_ref = '';
+    }
+    else if(document.getElementById(curr_select_string_ref).value == "Ambient Noise Levels"){
         hideOrShowOneById('ambient_noise', 'block');
         next_select_string_ref = 'time_select';
     }
-    else if(type_select_ref == "OSHA"){
+    else if(document.getElementById(curr_select_string_ref).value == "OSHA"){
         hideOrShowOneById('ambient_noise', 'none');
-        next_select_string_ref = '';
-    }
-    selectedOption(curr_select_string_ref, next_select_string_ref, addToPath);
-}
-
-//Get value of type option chosen and show/hide aprropriate div blocks
-function selectedFireOption(curr_select_string_ref, addToPath) {
-    var type_select_ref = document.getElementById(curr_select_string_ref).value;
-    if(type_select_ref == "Graham's Ratio"){
-        hideOrShowAllById(['grahams_ratio'], 'block');
         next_select_string_ref = '';
     }
     selectedOption(curr_select_string_ref, next_select_string_ref, addToPath);
@@ -143,17 +151,14 @@ function checkGasSafetyStatus() {
     var gas_unit_select = document.getElementById('unit_select').value;
 
     //need to add ppm into path since we avoid it in the unit selection part
-    if(!curr_path.includes('ppm')) 
-        curr_path += 'ppm/';
+    if(!curr_path.includes('ppm')) curr_path += 'ppm/';
 
     db_ref.child(curr_path).once("value", function(snapshot) {
         snapshot.forEach(function(child) {
             key_list.push(parseFloat(child.key));
             map.set(parseFloat(child.key), child.val());
         });
-        console.log(curr_path);
-        console.log(key_list);
-        console.log(map);
+        debugLogPrint([curr_path, key_list, map]);
 
         gas_conc_int = parseFloat(gas_conc_val);
         //Convert % to ppm
@@ -182,6 +187,12 @@ function checkGasSafetyStatus() {
             gas_unit: gas_unit_select,
             safety_status: safety_status_text_ref.textContent
         });
+    });
+}
+
+function debugLogPrint(varList){
+    varList.forEach(function(entry) {
+        console.log('%c debugLogPrint -\n', entry, 'color: red; font-weight: bold;');
     });
 }
 
@@ -275,6 +286,10 @@ function checkFireSafetyStatus() {
     var fire_ratio_dom_value = document.getElementById('fire_ratio_select').value;
 
     if(fire_ratio_dom_value == "Graham's Ratio"){
+        var indicator_ref = document.getElementById('indicator');
+        var co_input_text_int = parseFloat(document.getElementById('co_conc_input').value);
+        var o2_input_text_int = parseFloat(document.getElementById('o2_conc_input').value);
+        var n2_input_text_int = parseFloat(document.getElementById('n2_conc_input').value);
         db_ref.child(curr_path).once("value", function(snapshot) {
             snapshot.forEach(function(child) {
                 val_list.push(child.val());
@@ -284,11 +299,7 @@ function checkFireSafetyStatus() {
             console.log(curr_path);
             console.log(map);
             console.log(val_list);
-    
-            var indicator_ref = document.getElementById('indicator');
-            var co_input_text_int = parseFloat(document.getElementById('co_conc_input').value);
-            var o2_input_text_int = parseFloat(document.getElementById('o2_conc_input').value);
-            var n2_input_text_int = parseFloat(document.getElementById('n2_conc_input').value);
+            
             grahams_ratio_value = ((100 * co_input_text_int) / ((0.265 * n2_input_text_int) - o2_input_text_int)).toFixed(1);
             seg_length = 100/(val_list.length);
             safety_status_text_ref.textContent = grahams_ratio_value;
@@ -323,6 +334,49 @@ function checkFireSafetyStatus() {
                 safety_status: safety_string
             });
         });
+        // firestore_ref.collection(curr_path).get().then((snapshot) => {
+        //     const data = snapshot.docs.map((doc) => ({
+        //         //id: doc.id,
+        //         ...doc.data(),
+        //     }));
+        //     console.log(`All data in collection\n ${JSON.stringify( data )}`); 
+        //     for (const [key, value] of Object.entries(data[0])) {
+        //         val_list.push(key);
+        //         console.log(key, value, data[0], data[0][key]);
+        //     }
+        //     //delete val_list[0];   
+        //     console.log('val_list\n', val_list); 
+
+        //     grahams_ratio_value = ((100 * co_input_text_int) / ((0.265 * n2_input_text_int) - o2_input_text_int)).toFixed(1);
+        //     seg_length = 100/(val_list.length);
+        //     safety_status_text_ref.textContent = grahams_ratio_value;
+        //     console.log(`Vals are:\n ${grahams_ratio_value}\n ${seg_length}`); 
+
+        //     console.log('Check:\n', Math.max.apply(Math, val_list), Math.min.apply(Math, val_list), data[0], Object.keys(data[0])[0], Object.values(data[0])[0]); 
+        //     if(grahams_ratio_value > Math.max.apply(Math, val_list)){
+        //         safety_string = `\r\nActive Fire`;
+        //         indicator_ref.style.marginLeft = `${0}%`;
+        //         indicator_ref.style.marginRight = `${85}%`;
+        //     }
+        //     else if(grahams_ratio_value < Math.min.apply(Math, val_list)){
+        //         safety_string = `\r\nSafe`;
+        //         indicator_ref.style.marginLeft = `${85}%`;
+        //         indicator_ref.style.marginRight = `${0}%`;
+        //     }
+        //     else{
+        //         for(var i = 0; i < val_list.length; i++) {
+        //             if(grahams_ratio_value > val_list[i]){
+        //                 console.log('grahams_ratio_value > val_list[i] :\n', Object.values(data[0])[i]);
+        //                 safety_string = `\r\n${Object.values(data[0])[i]}`;
+        //                 var m_l = 0 + (i * seg_length);
+        //                 indicator_ref.style.marginLeft = `${m_l}%`;
+        //                 indicator_ref.style.marginRight = `${100 - seg_length - m_l}%`;
+        //             }
+        //             else break;
+        //         }
+        //     }
+        //     safety_status_text_ref.textContent += safety_string;
+        // });
     }
 }
 

@@ -1,5 +1,6 @@
 //Event listeners to check for connection status changes
 window.addEventListener('offline', handleConnection);
+window.addEventListener('online', handleConnection);
 
 //Get conn status ref and show online or offline status
 var conn_status_icon = document.getElementById("conn_icon");
@@ -38,6 +39,12 @@ function connStatusSwitch(isOnline) {
         console.log('online');
         conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#8ad6cc 0px 0px 0px) saturate(1000%)");
         conn_status_icon.src = "../images/wifi_conn.png";
+        // const url = 'https://minedb31.firebaseio.com/.json'
+        // fetch(url).then((res) => {
+        //     return caches.open('v1').then((cache) => {
+        //         return cache.put(url, res)
+        //     })
+        // })
     } 
     else {
         console.log('offline');
