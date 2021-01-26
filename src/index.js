@@ -1,5 +1,5 @@
 //initializing vars
-var curr_path = "/";
+var curr_path = "";
 var safety_status_text_ref = document.getElementById('safety_status_text');
 
 //Hide all divs in list and then load options with root path '/' and next element of id purpose_select
@@ -15,17 +15,36 @@ function loadOfOptions(path, select_string_ref){
     //include  (&& path != '/') for firestore
     if(select_string_ref != ''){
         //get k/v by path from rtd
-        db_ref.child(path).once("value", function(snapshot) {
-            snapshot.forEach(function(child) {
-                options.push(child.key);
+        console.log('loadOfOptions path: ', path);
+        if(onlineStatus){
+            db_ref.child(path).once("value", function(snapshot) {
+                snapshot.forEach(function(child) {
+                    options.push(child.key);
+                });
+                for(var i = 0; i < options.length; i++) {
+                    var opt = document.createElement('option');
+                    opt.innerHTML = options[i];
+                    opt.value = options[i];
+                    document.getElementById(select_string_ref).appendChild(opt);
+                }
             });
+        }
+        //get k/v by path from localStorage
+        else {
+            var dbObj = JSON.parse(localStorage.getItem('dbObj'));
+            console.log('loadOfOptions dbObj: ', dbObj);
+            var findObj = deepFind(dbObj, path, '/');
+            console.log('loadOfOptions findObj: ', findObj);
+            for(const [key] of Object.entries(findObj)){
+                options.push(key);
+            }
             for(var i = 0; i < options.length; i++) {
                 var opt = document.createElement('option');
                 opt.innerHTML = options[i];
                 opt.value = options[i];
                 document.getElementById(select_string_ref).appendChild(opt);
             }
-        });
+        }
         
         //odd number of things in path to get docs by path from firestore
         {
@@ -127,19 +146,54 @@ function checkGasSafetyStatus() {
 
     //need to add ppm into path since we avoid it in the unit selection part
     if(!curr_path.includes('ppm')) curr_path += 'ppm/';
+    gas_conc_int = parseFloat(gas_conc_val);
 
-    db_ref.child(curr_path).once("value", function(snapshot) {
-        snapshot.forEach(function(child) {
-            key_list.push(parseFloat(child.key));
-            map.set(parseFloat(child.key), child.val());
+    //Convert % to ppm
+    if(gas_unit_select == '%')
+        gas_conc_int *= 10000;
+
+    if(onlineStatus){
+        db_ref.child(curr_path).once("value", function(snapshot) {
+            snapshot.forEach(function(child) {
+                key_list.push(parseFloat(child.key));
+                map.set(parseFloat(child.key), child.val());
+            });
+            debugLogPrint([curr_path, key_list, map]);
+
+            //If input concentration is less than min then safe and if more than max then fatal
+            if(gas_conc_int < Math.min.apply(Math, key_list))
+                safety_status_text_ref.textContent = "All safe";
+            else if(gas_conc_int > Math.max.apply(Math, key_list))
+                safety_status_text_ref.textContent = "Fatal";
+            else{
+                for(var i = 0; i < key_list.length; i++) {
+                    if(gas_conc_int <= key_list[i]){
+                        safety_status_text_ref.textContent = map.get(key_list[i]);
+                        debugLogPrint([key_list[i], map.get(key_list[i])]);
+                        break;
+                    }
+                }
+            }
+            
+            //Add auto gen key with full deets as key-value pair
+            db_ref.child(`Historical Data/Gas Levels/${gas_name_select}`).push({ 
+                time_stamp : Math.round((new Date()).getTime() / 1000),
+                gas_conc: gas_conc_int,
+                gas_unit: gas_unit_select,
+                safety_status: safety_status_text_ref.textContent
+            });
         });
+    }
+    else{
+        var dbObj = JSON.parse(localStorage.getItem('dbObj'));
+        console.log('checkGasSafetyStatus dbObj: ', dbObj);
+        var findObj = deepFind(dbObj, curr_path, '/');
+        console.log('checkGasSafetyStatus findObj: ', findObj);
+        for(const [key, value] of Object.entries(findObj)){
+            key_list.push(parseFloat(key));
+            map.set(parseFloat(key), value);
+        }
         debugLogPrint([curr_path, key_list, map]);
-
-        gas_conc_int = parseFloat(gas_conc_val);
-
-        //Convert % to ppm
-        if(gas_unit_select == '%')
-            gas_conc_int *= 10000;
 
         //If input concentration is less than min then safe and if more than max then fatal
         if(gas_conc_int < Math.min.apply(Math, key_list))
@@ -155,15 +209,23 @@ function checkGasSafetyStatus() {
                 }
             }
         }
-        
+
         //Add auto gen key with full deets as key-value pair
-        db_ref.child(`Historical Data/Gas Levels/${gas_name_select}`).push({ 
-            time_stamp : Math.round((new Date()).getTime() / 1000),
-            gas_conc: gas_conc_int,
-            gas_unit: gas_unit_select,
-            safety_status: safety_status_text_ref.textContent
-        });
-    });
+        var gpath = `Historical Data/Gas Levels/${gas_name_select}`;
+        var keyGenVal = generatePushID();
+        gpath = gpath.split('/');
+        len = gpath.length; 
+        for (var i=0; i < len; i++){
+            dbObj = dbObj[gpath[i]];
+        };
+        dbObj[keyGenVal] = { 
+            'time_stamp' : Math.round((new Date()).getTime() / 1000),
+            'gas_conc': gas_conc_int,
+            'gas_unit': gas_unit_select,
+            'safety_status': safety_status_text_ref.textContent
+        };
+        console.log('checkGasSafetyStatus dbObj: ', dbObj);
+    }
 }
 
 //Check noise safety status by using : curr_path to get snapshot, noise_option_dom_value to check wihich noise option is picked
