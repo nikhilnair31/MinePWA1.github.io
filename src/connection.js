@@ -277,8 +277,9 @@ var dbObj = {
 var conn_status_icon = document.getElementById("conn_icon");
 
 //intial check for connection by getting conn status ref and show online or offline status, and if online then save a copy of the json and overwrite dbObj
+//flip status to have localStorage running while connected during debug times
 if(window.navigator.onLine){
-    onlineStatus = false;//true
+    onlineStatus = true;//false
     conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#8ad6cc 0px 0px 0px) saturate(1000%)");
     conn_status_icon.src = "../images/wifi_conn.png";
     $.getJSON('https://minedb31.firebaseio.com/.json', function(data) {
@@ -288,7 +289,7 @@ if(window.navigator.onLine){
     });
 }
 else{
-    onlineStatus = true;//false
+    onlineStatus = false;//true
     conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
     conn_status_icon.src = "../images/wifi_disconn.png";
 }
@@ -318,17 +319,17 @@ function isReachable(url) {
 function connStatusSwitch(isOnline) {
     //changed from offline->online
     if (isOnline) {
-        console.log('online');
-        onlineStatus = false;//true
-        conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#8ad6cc 0px 0px 0px) saturate(1000%)");
-        conn_status_icon.src = "../images/wifi_conn.png";
+      console.log('online');
+      onlineStatus = false;//true
+      conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#8ad6cc 0px 0px 0px) saturate(1000%)");
+      conn_status_icon.src = "../images/wifi_conn.png";
     } 
     //changed from online->offline
     else {
-        console.log('offline');
-        onlineStatus = true;//false
-        conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
-        conn_status_icon.src = "../images/wifi_disconn.png";
+      console.log('offline');
+      onlineStatus = true;//false
+      conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
+      conn_status_icon.src = "../images/wifi_disconn.png";
     }
 }
 
@@ -344,9 +345,9 @@ function deepFind(dbObj, path, splitter) {
         console.log('%c deepFind path', 'color: pink;', path);
         console.log('%c deepFind len', 'color: pink;', len);
         for (var i=0; i < len-1; i++){
-            console.log('%c deepFind path[i]', 'color: pink;', path[i]);
-            console.log('%c deepFind dbObj[path[i]', 'color: pink;', dbObj[path[i]]);
-            dbObj = dbObj[path[i]];
+          console.log('%c deepFind path[i]', 'color: pink;', path[i]);
+          console.log('%c deepFind dbObj[path[i]', 'color: pink;', dbObj[path[i]]);
+          dbObj = dbObj[path[i]];
         };
         return dbObj;
     }
