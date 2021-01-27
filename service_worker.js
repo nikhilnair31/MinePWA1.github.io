@@ -3,7 +3,8 @@ self.addEventListener('install', e => {
         caches.open("static").then(cache => {
             return cache.addAll(["./", "index.html", "./src/master.css", "./src/Chart.min.js", "./src/jquery.min.js", 
                  "./src/index.js", "./src/initialize.js", "./src/connection.js", "./src/historical_graph.js", 
-                 "./images/Sil_192.png", "./images/Sil_512.png", "./images/wifi_conn.png", "./images/wifi_disconn.png"]);
+                 "./images/wifi_conn.png", "./images/wifi_disconn.png",
+                 "./images/Sil_192.png", "./images/Sil_512.png"]);
         })
     );
 });

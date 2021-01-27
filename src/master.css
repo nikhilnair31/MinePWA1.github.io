@@ -65,19 +65,16 @@ input {
 }
 
 #conn_icon {
-    display:inline-block;
-    margin-top: 15px;
-    margin-left: 15px;
     position:absolute;
-    top:0;
-    left:0;
+    top: 10px;
+    left: 10px;
     height: 1.5pc;
     width: 1.5pc;
+    background-image: url("../images/wifi_conn.png");
     filter: opacity(0.5) drop-shadow(0 0 0 #8ad6cc) saturate(1000%);
-    background-size: 50% 50%;
+    background-size: 75% 75%;
     background-position: center center;
     background-repeat: no-repeat;
-    border-radius: 50%;
 }
 
 #twitter_button {
