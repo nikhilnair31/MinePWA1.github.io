@@ -5,7 +5,7 @@ html, body {
 }
 
 #bg_img{
-    background-image: url('../images/bg3.jpg');
+    /* background-image: url('../images/bg3.jpg'); */
     background-size:cover;
     z-index:-1;
     filter: blur(5px);
@@ -17,7 +17,7 @@ html, body {
 
 #fg{
     height: 100%;
-    background-color: rgba(0,0,0, 0.25);
+    background-color: rgb(34, 34, 34);
     position: absolute;
     top: 50%;
     left: 50%;
