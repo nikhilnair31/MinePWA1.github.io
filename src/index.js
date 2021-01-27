@@ -234,21 +234,52 @@ function checkNoiseSafetyStatus() {
     var map = new Map();
     var val_list = [];
     var key_list = [];
-    var threshold_noise, loudness_input_text_int;
+    var threshold_noise;
 
+    var loudness_input_text_int = parseFloat(loudness_val);
     var loudness_val = document.getElementById('loudness_input_input').value;
     var area_text = document.getElementById('area_select').value;
     var day_time = document.getElementById('time_select').value;
 
     if(document.getElementById('noise_type_select').value == "Ambient Noise Levels"){
-        db_ref.child(curr_path).once("value", function(snapshot) {
-            snapshot.forEach(function(child) {
-                val_list.push(child.val());
-                map.set(child.val(), child.key);
+        if(onlineStatus){
+            db_ref.child(curr_path).once("value", function(snapshot) {
+                snapshot.forEach(function(child) {
+                    val_list.push(child.val());
+                    map.set(child.val(), child.key);
+                });
+                debugLogPrint([curr_path, val_list, map]);
+        
+                for (let [key, value] of map.entries()) {
+                    if (value === area_text)
+                        threshold_noise = key;
+                }
+                if(loudness_input_text_int <= threshold_noise)
+                    safety_status_text_ref.textContent = 'Safe';
+                else
+                    safety_status_text_ref.textContent = 'UnSafe';
+                
+                //Add auto gen key with full deets as key-value pair
+                db_ref.child('Historical Data/Noise Levels/Ambient Noise Levels').push({ 
+                    time_stamp : Math.round((new Date()).getTime() / 1000),
+                    day_time: day_time,
+                    area_name: area_text,
+                    loudness: parseInt(loudness_val),
+                    safety_status: safety_status_text_ref.textContent
+                });
             });
+        }
+        else{
+            var dbObj = JSON.parse(localStorage.getItem('dbObj'));
+            console.log('checkNoiseSafetyStatus dbObj: ', dbObj);
+            var findObj = deepFind(dbObj, curr_path, '/');
+            console.log('checkNoiseSafetyStatus findObj: ', findObj);
+            for(const [key, value] of Object.entries(findObj)){
+                val_list.push(parseFloat(value));
+                map.set(parseFloat(value), key);
+            }
             debugLogPrint([curr_path, val_list, map]);
-    
-            loudness_input_text_int = parseFloat(loudness_val);
+
             for (let [key, value] of map.entries()) {
                 if (value === area_text)
                     threshold_noise = key;
@@ -259,27 +290,68 @@ function checkNoiseSafetyStatus() {
                 safety_status_text_ref.textContent = 'UnSafe';
             
             //Add auto gen key with full deets as key-value pair
-            db_ref.child('Historical Data/Noise Levels/Ambient Noise Levels').push({ 
+            var gpath = `Historical Data/Noise Levels/Ambient Noise Levels`;
+            var keyGenVal = generatePushID();
+            gpath = gpath.split('/');
+            len = gpath.length; 
+            debugLogPrint([keyGenVal, gpath, len]);
+            for (var i=0; i < len; i++){
+                dbObj = dbObj[gpath[i]];
+            };
+            dbObj[keyGenVal] = {
                 time_stamp : Math.round((new Date()).getTime() / 1000),
                 day_time: day_time,
                 area_name: area_text,
                 loudness: parseInt(loudness_val),
                 safety_status: safety_status_text_ref.textContent
-            });
-        });
+            };
+            console.log('checkNoiseSafetyStatus dbObj: ', dbObj);
+        }
     }
     else if(document.getElementById('noise_type_select').value == "OSHA"){
-        var loudness_input_text_int;
         var loudness_val = document.getElementById('loudness_input_input').value;
+        var loudness_input_text_int = parseFloat(loudness_val);
+   
+        if(onlineStatus){
+            db_ref.child(curr_path).once("value", function(snapshot) {
+                snapshot.forEach(function(child) {
+                    key_list.push(parseFloat(child.key));
+                    map.set(parseFloat(child.key), child.val());
+                });
+                debugLogPrint([curr_path, key_list, map]);
+        
+                if(loudness_input_text_int <= Math.min.apply(Math, key_list))
+                    safety_status_text_ref.textContent = `Safe`;
+                else if(loudness_input_text_int > Math.max.apply(Math, key_list))
+                    safety_status_text_ref.textContent = `Completely UnSafe`;
+                else{
+                    for(var i = 0; i < key_list.length; i++) {
+                        if(loudness_input_text_int <= key_list[i]){
+                            safety_status_text_ref.textContent = `UnSafe after ${map.get(key_list[i])} hours`;
+                            break;
+                        }
+                    }
+                }
 
-        db_ref.child(curr_path).once("value", function(snapshot) {
-            snapshot.forEach(function(child) {
-                key_list.push(parseFloat(child.key));
-                map.set(parseFloat(child.key), child.val());
+                //Add auto gen key with full deets as key-value pair
+                db_ref.child('Historical Data/Noise Levels/OSHA').push({ 
+                    time_stamp : Math.round((new Date()).getTime() / 1000),
+                    loudness: parseInt(loudness_val),
+                    safety_status: safety_status_text_ref.textContent
+                });
             });
-            debugLogPrint([curr_path, key_list, map]);
-    
-            loudness_input_text_int = parseFloat(loudness_val);
+        }
+        else{
+            var dbObj = JSON.parse(localStorage.getItem('dbObj'));
+            console.log('checkNoiseSafetyStatus dbObj: ', dbObj);
+            var findObj = deepFind(dbObj, curr_path, '/');
+            console.log('checkNoiseSafetyStatus findObj: ', findObj);
+            for(const [key, value] of Object.entries(findObj)){
+                key_list.push(parseFloat(key));
+                map.set(parseFloat(key), value);
+            }
+            debugLogPrint([curr_path, val_list, map]);
+
             if(loudness_input_text_int <= Math.min.apply(Math, key_list))
                 safety_status_text_ref.textContent = `Safe`;
             else if(loudness_input_text_int > Math.max.apply(Math, key_list))
@@ -292,14 +364,23 @@ function checkNoiseSafetyStatus() {
                     }
                 }
             }
-
+            
             //Add auto gen key with full deets as key-value pair
-            db_ref.child('Historical Data/Noise Levels/OSHA').push({ 
+            var gpath = `Historical Data/Noise Levels/OSHA`;
+            var keyGenVal = generatePushID();
+            gpath = gpath.split('/');
+            len = gpath.length; 
+            debugLogPrint([keyGenVal, gpath, len]);
+            for (var i=0; i < len; i++){
+                dbObj = dbObj[gpath[i]];
+            };
+            dbObj[keyGenVal] = {
                 time_stamp : Math.round((new Date()).getTime() / 1000),
                 loudness: parseInt(loudness_val),
                 safety_status: safety_status_text_ref.textContent
-            });
-        });
+            };
+            console.log('checkNoiseSafetyStatus dbObj: ', dbObj);
+        }
     }
 }
 
@@ -317,19 +398,62 @@ function checkFireSafetyStatus() {
         var co_input_text_int = parseFloat(document.getElementById('co_conc_input').value);
         var o2_input_text_int = parseFloat(document.getElementById('o2_conc_input').value);
         var n2_input_text_int = parseFloat(document.getElementById('n2_conc_input').value);
-        db_ref.child(curr_path).once("value", function(snapshot) {
-            snapshot.forEach(function(child) {
-                val_list.push(child.val());
-                map.set(child.val(), child.key);
+
+        grahams_ratio_value = ((100 * co_input_text_int) / ((0.265 * n2_input_text_int) - o2_input_text_int)).toFixed(1);
+        seg_length = 100/(val_list.length);
+        safety_status_text_ref.textContent = grahams_ratio_value;
+
+        if(onlineStatus){
+            db_ref.child(curr_path).once("value", function(snapshot) {
+                snapshot.forEach(function(child) {
+                    val_list.push(child.val());
+                    map.set(child.val(), child.key);
+                });
+                barSplit(val_list);
+                debugLogPrint([curr_path, val_list, map]);
+
+                if(grahams_ratio_value > val_list[0]){
+                    safety_string = `\r\nActive Fire`;
+                    indicator_ref.style.marginLeft = `${0}%`;
+                    indicator_ref.style.marginRight = `${85}%`;
+                }
+                else if(grahams_ratio_value < val_list[val_list.length-1]){
+                    safety_string = `\r\nSafe`;
+                    indicator_ref.style.marginLeft = `${85}%`;
+                    indicator_ref.style.marginRight = `${0}%`;
+                }
+                else{
+                    for(var i = 0; i < val_list.length; i++) {
+                        if(grahams_ratio_value > val_list[i]){
+                            safety_string = `\r\n${map.get(val_list[i])}`;
+                            var m_l = 0 + (i * seg_length);
+                            indicator_ref.style.marginLeft = `${m_l}%`;
+                            indicator_ref.style.marginRight = `${100 - seg_length - m_l}%`;
+                            break;
+                        }
+                    }
+                }
+                safety_status_text_ref.textContent += safety_string;
+
+                //Add auto gen key with full deets as key-value pair
+                db_ref.child("Historical Data/Fire Levels/Graham's Ratio").push({ 
+                    time_stamp : Math.round((new Date()).getTime() / 1000),
+                    gr_value: parseFloat(grahams_ratio_value),
+                    safety_status: safety_string
+                });
             });
+        }
+        else{
+            var dbObj = JSON.parse(localStorage.getItem('dbObj'));
+            console.log('checkNoiseSafetyStatus dbObj: ', dbObj);
+            var findObj = deepFind(dbObj, curr_path, '/');
+            console.log('checkNoiseSafetyStatus findObj: ', findObj);
+            for(const [key, value] of Object.entries(findObj)){
+                val_list.push(value);
+                map.set(value, key);
+            }
             barSplit(val_list);
-            console.log(curr_path);
-            console.log(map);
-            console.log(val_list);
-            
-            grahams_ratio_value = ((100 * co_input_text_int) / ((0.265 * n2_input_text_int) - o2_input_text_int)).toFixed(1);
-            seg_length = 100/(val_list.length);
-            safety_status_text_ref.textContent = grahams_ratio_value;
+            debugLogPrint([curr_path, val_list, map]);
 
             if(grahams_ratio_value > val_list[0]){
                 safety_string = `\r\nActive Fire`;
@@ -353,57 +477,68 @@ function checkFireSafetyStatus() {
                 }
             }
             safety_status_text_ref.textContent += safety_string;
-
+            
             //Add auto gen key with full deets as key-value pair
-            db_ref.child("Historical Data/Fire Levels/Graham's Ratio").push({ 
+            var gpath = `Historical Data/Fire Levels/Graham's Ratio`;
+            var keyGenVal = generatePushID();
+            gpath = gpath.split('/');
+            len = gpath.length; 
+            debugLogPrint([keyGenVal, gpath, len]);
+            for (var i=0; i < len; i++){
+                dbObj = dbObj[gpath[i]];
+            };
+            dbObj[keyGenVal] = {
                 time_stamp : Math.round((new Date()).getTime() / 1000),
                 gr_value: parseFloat(grahams_ratio_value),
                 safety_status: safety_string
-            });
-        });
-        // firestore_ref.collection(curr_path).get().then((snapshot) => {
-        //     const data = snapshot.docs.map((doc) => ({
-        //         //id: doc.id,
-        //         ...doc.data(),
-        //     }));
-        //     console.log(`All data in collection\n ${JSON.stringify( data )}`); 
-        //     for (const [key, value] of Object.entries(data[0])) {
-        //         val_list.push(key);
-        //         console.log(key, value, data[0], data[0][key]);
-        //     }
-        //     //delete val_list[0];   
-        //     console.log('val_list\n', val_list); 
+            };
+            console.log('checkFireSafetyStatus dbObj: ', dbObj);
+        }
+        {
+            // firestore_ref.collection(curr_path).get().then((snapshot) => {
+            //     const data = snapshot.docs.map((doc) => ({
+            //         //id: doc.id,
+            //         ...doc.data(),
+            //     }));
+            //     console.log(`All data in collection\n ${JSON.stringify( data )}`); 
+            //     for (const [key, value] of Object.entries(data[0])) {
+            //         val_list.push(key);
+            //         console.log(key, value, data[0], data[0][key]);
+            //     }
+            //     //delete val_list[0];   
+            //     console.log('val_list\n', val_list); 
 
-        //     grahams_ratio_value = ((100 * co_input_text_int) / ((0.265 * n2_input_text_int) - o2_input_text_int)).toFixed(1);
-        //     seg_length = 100/(val_list.length);
-        //     safety_status_text_ref.textContent = grahams_ratio_value;
-        //     console.log(`Vals are:\n ${grahams_ratio_value}\n ${seg_length}`); 
+            //     grahams_ratio_value = ((100 * co_input_text_int) / ((0.265 * n2_input_text_int) - o2_input_text_int)).toFixed(1);
+            //     seg_length = 100/(val_list.length);
+            //     safety_status_text_ref.textContent = grahams_ratio_value;
+            //     console.log(`Vals are:\n ${grahams_ratio_value}\n ${seg_length}`); 
 
-        //     console.log('Check:\n', Math.max.apply(Math, val_list), Math.min.apply(Math, val_list), data[0], Object.keys(data[0])[0], Object.values(data[0])[0]); 
-        //     if(grahams_ratio_value > Math.max.apply(Math, val_list)){
-        //         safety_string = `\r\nActive Fire`;
-        //         indicator_ref.style.marginLeft = `${0}%`;
-        //         indicator_ref.style.marginRight = `${85}%`;
-        //     }
-        //     else if(grahams_ratio_value < Math.min.apply(Math, val_list)){
-        //         safety_string = `\r\nSafe`;
-        //         indicator_ref.style.marginLeft = `${85}%`;
-        //         indicator_ref.style.marginRight = `${0}%`;
-        //     }
-        //     else{
-        //         for(var i = 0; i < val_list.length; i++) {
-        //             if(grahams_ratio_value > val_list[i]){
-        //                 console.log('grahams_ratio_value > val_list[i] :\n', Object.values(data[0])[i]);
-        //                 safety_string = `\r\n${Object.values(data[0])[i]}`;
-        //                 var m_l = 0 + (i * seg_length);
-        //                 indicator_ref.style.marginLeft = `${m_l}%`;
-        //                 indicator_ref.style.marginRight = `${100 - seg_length - m_l}%`;
-        //             }
-        //             else break;
-        //         }
-        //     }
-        //     safety_status_text_ref.textContent += safety_string;
-        // });
+            //     console.log('Check:\n', Math.max.apply(Math, val_list), Math.min.apply(Math, val_list), data[0], Object.keys(data[0])[0], Object.values(data[0])[0]); 
+            //     if(grahams_ratio_value > Math.max.apply(Math, val_list)){
+            //         safety_string = `\r\nActive Fire`;
+            //         indicator_ref.style.marginLeft = `${0}%`;
+            //         indicator_ref.style.marginRight = `${85}%`;
+            //     }
+            //     else if(grahams_ratio_value < Math.min.apply(Math, val_list)){
+            //         safety_string = `\r\nSafe`;
+            //         indicator_ref.style.marginLeft = `${85}%`;
+            //         indicator_ref.style.marginRight = `${0}%`;
+            //     }
+            //     else{
+            //         for(var i = 0; i < val_list.length; i++) {
+            //             if(grahams_ratio_value > val_list[i]){
+            //                 console.log('grahams_ratio_value > val_list[i] :\n', Object.values(data[0])[i]);
+            //                 safety_string = `\r\n${Object.values(data[0])[i]}`;
+            //                 var m_l = 0 + (i * seg_length);
+            //                 indicator_ref.style.marginLeft = `${m_l}%`;
+            //                 indicator_ref.style.marginRight = `${100 - seg_length - m_l}%`;
+            //             }
+            //             else break;
+            //         }
+            //     }
+            //     safety_status_text_ref.textContent += safety_string;
+            // });
+        }
     }
 }
 
