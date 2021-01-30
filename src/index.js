@@ -118,15 +118,15 @@ function selectedTypeOption() {
     else if(document.getElementById('purpose_select').value == 'Historical Data'){
         document.getElementById("button_graph_hd").style.display = "initial";
         hideOrShowOneById('historical_data', 'block');
-        if(type_select_val == "Gas Levels"){
+        if(document.getElementById('type_select').value == "Gas Levels"){
             hideOrShowOneById('gas_levels_hd', 'block');
             next_select_string_ref = 'gas_select_hd';
         }
-        else if(type_select_val == "Noise Levels"){
+        else if(document.getElementById('type_select').value == "Noise Levels"){
             hideOrShowOneById('noise_levels_hd', 'block');
             next_select_string_ref = 'noise_type_select_hd';
         }
-        else if(type_select_val == "Fire Levels"){
+        else if(document.getElementById('type_select').value == "Fire Levels"){
             hideOrShowOneById('fire_levels_hd', 'block');
             next_select_string_ref = 'fire_ratio_select_hd';
         }

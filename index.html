@@ -30,7 +30,8 @@
         <div id="fg">
             <div id="title_status_buttons">
                 <!-- <span id="conn_dot"></span> -->
-                <div id="conn_icon""></div>
+                <div id="conn_icon"></div>
+                <label id="conn_label">Storage</label>
                 <button id="twitter_button" onclick=openTwitter()></button>
                 <h1>MinePWA1</h1>
             </div>
@@ -160,7 +161,7 @@
                 <div id="fire_levels_hd">
                     <p>Fire Levels Historical Data</p>
                     <label>Which Gas Ratio</label></br>
-                    <select id="fire_ratio_select_hd" onchange="selectedFireOption('fire_ratio_select_hd', true)">
+                    <select id="fire_ratio_select_hd" onchange="selectedOption('fire_ratio_select_hd', '', true)">
                         <option>-</option>
                     </select>
                     </br>
