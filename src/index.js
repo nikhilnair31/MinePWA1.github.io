@@ -180,6 +180,8 @@ function checkGasSafetyStatus() {
         tr += "<td>" + parseFloat(key) + "</td>" + "<td>" + value + "</td></tr>";
         gas_tv_table_ref.innerHTML += tr;
     }
+    var lastVal = Object.keys(findObj)[Object.keys(findObj).length - 1];
+    gas_tv_table_ref.innerHTML += "<tr><td> >" + parseFloat(lastVal) + "</td>" + "<td> fatal </td></tr>";
     debugLogPrint(['checkGasSafetyStatus', curr_path, key_list, map, dbObj, findObj]);
 
     //If input concentration is less than min then safe and if more than max then fatal
