@@ -1,7 +1,36 @@
 html, body {
     height: 100%;
     margin: 0;
-    background: #0d0d0b;
+    background: #222222;
+}
+
+table, th, td {
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid rgb(255, 255, 255);
+    border-collapse: collapse;
+}
+
+th, td {
+    color: rgb(202, 202, 202);
+    font-family: 'Comfortaa', cursive;
+    font-size: 13px;
+    padding: 8px;
+}
+
+th {
+    text-align: left;
+}
+
+#table_heading{
+    color: white;
+    font-family: 'Comfortaa', cursive;
+    font-size: 18px;
+    padding: 15px;
+}
+
+#safety_status_text{
+    color: rgb(255, 71, 95);
 }
 
 #bg_img{

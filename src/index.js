@@ -168,15 +168,19 @@ function checkGasSafetyStatus() {
     if(gas_unit_select == '%')
         gas_conc_int *= 10000;
 
+    //find table ref and add errything from object into it
+    var gas_tv_table_ref = document.getElementById('gas_tv_table');
     var dbObj = JSON.parse(localStorage.getItem('dbObj'));
-    console.log('checkGasSafetyStatus dbObj: ', dbObj);
     var findObj = deepFind(dbObj, curr_path, '/');
-    console.log('checkGasSafetyStatus findObj: ', findObj);
-    for(const [key, value] of Object.entries(findObj)){
+    for (const [key, value] of Object.entries(findObj)){
         key_list.push(parseFloat(key));
         map.set(parseFloat(key), value);
+
+        var tr = "<tr>";
+        tr += "<td>" + parseFloat(key) + "</td>" + "<td>" + value + "</td></tr>";
+        gas_tv_table_ref.innerHTML += tr;
     }
-    debugLogPrint([curr_path, key_list, map]);
+    debugLogPrint(['checkGasSafetyStatus', curr_path, key_list, map, dbObj, findObj]);
 
     //If input concentration is less than min then safe and if more than max then fatal
     if(gas_conc_int < Math.min.apply(Math, key_list))
@@ -193,6 +197,7 @@ function checkGasSafetyStatus() {
         }
     }
 
+    //saving either online or locally depending on online status
     if(onlineStatus){
         db_ref.child(`Historical Data/Gas Levels/${gas_name_select}`).push({ 
             time_stamp : Math.round((new Date()).getTime() / 1000),
