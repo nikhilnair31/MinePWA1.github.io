@@ -151,6 +151,93 @@ function selectedGFNOption(curr_select_string_ref, addToPath) {
     selectedOption(curr_select_string_ref, next_select_string_ref, addToPath);
 }
 
+//Check noise safety status by using : curr_path to get snapshot, fire_ratio_dom_value to check wihich gas ratio option is picked
+//input loudness ref for dB(A) and input area ref for type of area
+function checkFireSafetyStatus() {
+    var map = new Map();
+    var val_list = [];
+    var gas_tv_table_ref = document.getElementById('gas_tv_table');
+    var fire_ratio_dom_value = document.getElementById('fire_ratio_select').value;
+
+    if(fire_ratio_dom_value == "Graham's Ratio"){
+        var grahams_ratio_value, seg_length, safety_string;
+        var gpath = "Historical Data/Fire Levels/Graham's Ratio";
+        var co_input_text_int = parseFloat(document.getElementById('co_conc_input').value);
+        var o2_input_text_int = parseFloat(document.getElementById('o2_conc_input').value);
+        var n2_input_text_int = parseFloat(document.getElementById('n2_conc_input').value);
+
+        grahams_ratio_value = ((100 * co_input_text_int) / ((0.265 * n2_input_text_int) - o2_input_text_int)).toFixed(2);
+        seg_length = 100/(val_list.length);
+        safety_status_text_ref.textContent = grahams_ratio_value;
+
+        //clear table every time button is clicked and make first row as table's titles
+        gas_tv_table_ref.innerHTML = "<tr><td id='table_heading'> Effect </td> <td id='table_heading'> Graham's Ratio Value </td></tr>";
+
+        //find fb object from localstorage and deepfind function
+        var dbObj = JSON.parse(localStorage.getItem('dbObj'));
+        var findObj = deepFind(dbObj, curr_path, '/');
+
+        for (const [key, value] of Object.entries(findObj)){
+            val_list.push(parseFloat(value));
+            map.set(parseFloat(value), key);
+    
+            var tr = "<tr>";
+            tr += '<td>' + key + "</td>" + "<td>" + parseFloat(value) + "</td></tr>";
+            gas_tv_table_ref.innerHTML += tr;
+        }
+        debugLogPrint(['checkFireSafetyStatus', curr_path, val_list, map, dbObj, findObj]);
+
+        if(grahams_ratio_value > Math.max.apply(Math, val_list)){
+            safety_string = `\r\nActive Fire`;
+            $('table #gas_tv_table tr:nth-child(2)').css({'background-color': 'rgb(255, 71, 95)'});
+        }
+        else if(grahams_ratio_value < Math.min.apply(Math, val_list)){
+            safety_string= `\r\nSafe`;
+            $('table #gas_tv_table tr:nth-child('+ (val_list.length+1) +')').css({'background-color': 'rgb(255, 71, 95)'});
+        }
+        else{
+            for(var i = 0; i < val_list.length; i++) {
+                if(grahams_ratio_value > val_list[i]){
+                    if(val_list[i-1] - grahams_ratio_value < grahams_ratio_value - val_list[i]){
+                        $('table #gas_tv_table tr:nth-child('+ (i+1) +')').css({'background-color': 'rgb(255, 71, 95)'});
+                        safety_string = `\r\n${map.get(val_list[i-1])}`;
+                        break;
+                    }
+                    else{
+                        $('table #gas_tv_table tr:nth-child('+ (i+2) +')').css({'background-color': 'rgb(255, 71, 95)'});
+                        safety_string = `\r\n${map.get(val_list[i])}`;
+                        break;
+                    }
+                }
+            }
+        }
+        safety_status_text_ref.textContent += safety_string;
+
+        if(onlineStatus){
+            db_ref.child(gpath).push({ 
+                time_stamp : Math.round((new Date()).getTime() / 1000),
+                gr_value: parseFloat(grahams_ratio_value),
+                safety_status: safety_string
+            });
+        }
+        else{
+            var keyGenVal = generatePushID();
+            gpath = gpath.split('/');
+            len = gpath.length; 
+            debugLogPrint([keyGenVal, gpath, len]);
+            for (var i=0; i < len; i++){
+                dbObj = dbObj[gpath[i]];
+            };
+            dbObj[keyGenVal] = {
+                time_stamp : Math.round((new Date()).getTime() / 1000),
+                gr_value: parseFloat(grahams_ratio_value),
+                safety_status: safety_string
+            };
+            console.log('checkFireSafetyStatus dbObj: ', dbObj);
+        }
+    }
+}
+
 //Check gas safety status by using : curr_path to get snapshot and input string ref to get input gas conc
 function checkGasSafetyStatus() {
     var map = new Map();
@@ -170,14 +257,19 @@ function checkGasSafetyStatus() {
 
     //find table ref and add errything from object into it
     var gas_tv_table_ref = document.getElementById('gas_tv_table');
+    //clear table every time button is clicked and make first row as table's titles
+    gas_tv_table_ref.innerHTML = '<tr><td id="table_heading"> Concentration </td> <td id="table_heading"> Effect </td></tr>';
+    
+    //find fb object from localstorage and deepfind function
     var dbObj = JSON.parse(localStorage.getItem('dbObj'));
     var findObj = deepFind(dbObj, curr_path, '/');
+
     for (const [key, value] of Object.entries(findObj)){
         key_list.push(parseFloat(key));
         map.set(parseFloat(key), value);
 
         var tr = "<tr>";
-        tr += "<td>" + parseFloat(key) + "</td>" + "<td>" + value + "</td></tr>";
+        tr += '<td>' + parseFloat(key) + "</td>" + "<td>" + value + "</td></tr>";
         gas_tv_table_ref.innerHTML += tr;
     }
     var lastVal = Object.keys(findObj)[Object.keys(findObj).length - 1];
@@ -185,16 +277,27 @@ function checkGasSafetyStatus() {
     debugLogPrint(['checkGasSafetyStatus', curr_path, key_list, map, dbObj, findObj]);
 
     //If input concentration is less than min then safe and if more than max then fatal
-    if(gas_conc_int < Math.min.apply(Math, key_list))
+    if(gas_conc_int < Math.min.apply(Math, key_list)){
         safety_status_text_ref.textContent = "All safe";
-    else if(gas_conc_int > Math.max.apply(Math, key_list))
+        $('table #gas_tv_table tr:nth-child(2)').css({'background-color': 'rgb(255, 71, 95)'});
+    }
+    else if(gas_conc_int > Math.max.apply(Math, key_list)){
         safety_status_text_ref.textContent = "Fatal";
+        $('table #gas_tv_table tr:nth-child('+ (key_list.length+2) +')').css({'background-color': 'rgb(255, 71, 95)'});
+    }
     else{
         for(var i = 0; i < key_list.length; i++) {
             if(gas_conc_int <= key_list[i]){
-                safety_status_text_ref.textContent = map.get(key_list[i]);
-                debugLogPrint([key_list[i], map.get(key_list[i])]);
-                break;
+                if(gas_conc_int - key_list[i-1] < key_list[i] - gas_conc_int){
+                    $('table #gas_tv_table tr:nth-child('+ (i+1) +')').css({'background-color': 'rgb(255, 71, 95)'});
+                    safety_status_text_ref.textContent = map.get(key_list[i-1]);
+                    break;
+                }
+                else{
+                    $('table #gas_tv_table tr:nth-child('+ (i) +')').css({'background-color': 'rgb(255, 71, 95)'});
+                    safety_status_text_ref.textContent = map.get(key_list[i]);
+                    break;
+                }
             }
         }
     }
@@ -207,38 +310,6 @@ function checkGasSafetyStatus() {
             gas_unit: gas_unit_select,
             safety_status: safety_status_text_ref.textContent
         });
-        {
-            // db_ref.child(curr_path).once("value", function(snapshot) {
-            //     snapshot.forEach(function(child) {
-            //         key_list.push(parseFloat(child.key));
-            //         map.set(parseFloat(child.key), child.val());
-            //     });
-            //     debugLogPrint([curr_path, key_list, map]);
-
-            //     //If input concentration is less than min then safe and if more than max then fatal
-            //     if(gas_conc_int < Math.min.apply(Math, key_list))
-            //         safety_status_text_ref.textContent = "All safe";
-            //     else if(gas_conc_int > Math.max.apply(Math, key_list))
-            //         safety_status_text_ref.textContent = "Fatal";
-            //     else{
-            //         for(var i = 0; i < key_list.length; i++) {
-            //             if(gas_conc_int <= key_list[i]){
-            //                 safety_status_text_ref.textContent = map.get(key_list[i]);
-            //                 debugLogPrint([key_list[i], map.get(key_list[i])]);
-            //                 break;
-            //             }
-            //         }
-            //     }
-                
-            //     //Add auto gen key with full deets as key-value pair
-            //     db_ref.child(`Historical Data/Gas Levels/${gas_name_select}`).push({ 
-            //         time_stamp : Math.round((new Date()).getTime() / 1000),
-            //         gas_conc: gas_conc_int,
-            //         gas_unit: gas_unit_select,
-            //         safety_status: safety_status_text_ref.textContent
-            //     });
-            // });
-        }
     }
     else{
         var gpath = `Historical Data/Gas Levels/${gas_name_select}`;
@@ -414,164 +485,6 @@ function checkNoiseSafetyStatus() {
     }
 }
 
-//Check noise safety status by using : curr_path to get snapshot, fire_ratio_dom_value to check wihich gas ratio option is picked
-//input loudness ref for dB(A) and input area ref for type of area
-function checkFireSafetyStatus() {
-    var map = new Map();
-    var val_list = [];
-    var grahams_ratio_value, seg_length, safety_string;
-
-    var fire_ratio_dom_value = document.getElementById('fire_ratio_select').value;
-
-    if(fire_ratio_dom_value == "Graham's Ratio"){
-        var indicator_ref = document.getElementById('indicator');
-        var co_input_text_int = parseFloat(document.getElementById('co_conc_input').value);
-        var o2_input_text_int = parseFloat(document.getElementById('o2_conc_input').value);
-        var n2_input_text_int = parseFloat(document.getElementById('n2_conc_input').value);
-
-        grahams_ratio_value = ((100 * co_input_text_int) / ((0.265 * n2_input_text_int) - o2_input_text_int)).toFixed(1);
-        seg_length = 100/(val_list.length);
-        safety_status_text_ref.textContent = grahams_ratio_value;
-
-        if(onlineStatus){
-            db_ref.child(curr_path).once("value", function(snapshot) {
-                snapshot.forEach(function(child) {
-                    val_list.push(child.val());
-                    map.set(child.val(), child.key);
-                });
-                barSplit(val_list);
-                debugLogPrint([curr_path, val_list, map]);
-
-                if(grahams_ratio_value > val_list[0]){
-                    safety_string = `\r\nActive Fire`;
-                    indicator_ref.style.marginLeft = `${0}%`;
-                    indicator_ref.style.marginRight = `${85}%`;
-                }
-                else if(grahams_ratio_value < val_list[val_list.length-1]){
-                    safety_string = `\r\nSafe`;
-                    indicator_ref.style.marginLeft = `${85}%`;
-                    indicator_ref.style.marginRight = `${0}%`;
-                }
-                else{
-                    for(var i = 0; i < val_list.length; i++) {
-                        if(grahams_ratio_value > val_list[i]){
-                            safety_string = `\r\n${map.get(val_list[i])}`;
-                            var m_l = 0 + (i * seg_length);
-                            indicator_ref.style.marginLeft = `${m_l}%`;
-                            indicator_ref.style.marginRight = `${100 - seg_length - m_l}%`;
-                            break;
-                        }
-                    }
-                }
-                safety_status_text_ref.textContent += safety_string;
-
-                //Add auto gen key with full deets as key-value pair
-                db_ref.child("Historical Data/Fire Levels/Graham's Ratio").push({ 
-                    time_stamp : Math.round((new Date()).getTime() / 1000),
-                    gr_value: parseFloat(grahams_ratio_value),
-                    safety_status: safety_string
-                });
-            });
-        }
-        else{
-            var dbObj = JSON.parse(localStorage.getItem('dbObj'));
-            console.log('checkNoiseSafetyStatus dbObj: ', dbObj);
-            var findObj = deepFind(dbObj, curr_path, '/');
-            console.log('checkNoiseSafetyStatus findObj: ', findObj);
-            for(const [key, value] of Object.entries(findObj)){
-                val_list.push(value);
-                map.set(value, key);
-            }
-            barSplit(val_list);
-            debugLogPrint([curr_path, val_list, map]);
-
-            if(grahams_ratio_value > val_list[0]){
-                safety_string = `\r\nActive Fire`;
-                indicator_ref.style.marginLeft = `${0}%`;
-                indicator_ref.style.marginRight = `${85}%`;
-            }
-            else if(grahams_ratio_value < val_list[val_list.length-1]){
-                safety_string = `\r\nSafe`;
-                indicator_ref.style.marginLeft = `${85}%`;
-                indicator_ref.style.marginRight = `${0}%`;
-            }
-            else{
-                for(var i = 0; i < val_list.length; i++) {
-                    if(grahams_ratio_value > val_list[i]){
-                        safety_string = `\r\n${map.get(val_list[i])}`;
-                        var m_l = 0 + (i * seg_length);
-                        indicator_ref.style.marginLeft = `${m_l}%`;
-                        indicator_ref.style.marginRight = `${100 - seg_length - m_l}%`;
-                        break;
-                    }
-                }
-            }
-            safety_status_text_ref.textContent += safety_string;
-            
-            //Add auto gen key with full deets as key-value pair
-            var gpath = `Historical Data/Fire Levels/Graham's Ratio`;
-            var keyGenVal = generatePushID();
-            gpath = gpath.split('/');
-            len = gpath.length; 
-            debugLogPrint([keyGenVal, gpath, len]);
-            for (var i=0; i < len; i++){
-                dbObj = dbObj[gpath[i]];
-            };
-            dbObj[keyGenVal] = {
-                time_stamp : Math.round((new Date()).getTime() / 1000),
-                gr_value: parseFloat(grahams_ratio_value),
-                safety_status: safety_string
-            };
-            console.log('checkFireSafetyStatus dbObj: ', dbObj);
-        }
-        {
-            // firestore_ref.collection(curr_path).get().then((snapshot) => {
-            //     const data = snapshot.docs.map((doc) => ({
-            //         //id: doc.id,
-            //         ...doc.data(),
-            //     }));
-            //     console.log(`All data in collection\n ${JSON.stringify( data )}`); 
-            //     for (const [key, value] of Object.entries(data[0])) {
-            //         val_list.push(key);
-            //         console.log(key, value, data[0], data[0][key]);
-            //     }
-            //     //delete val_list[0];   
-            //     console.log('val_list\n', val_list); 
-
-            //     grahams_ratio_value = ((100 * co_input_text_int) / ((0.265 * n2_input_text_int) - o2_input_text_int)).toFixed(1);
-            //     seg_length = 100/(val_list.length);
-            //     safety_status_text_ref.textContent = grahams_ratio_value;
-            //     console.log(`Vals are:\n ${grahams_ratio_value}\n ${seg_length}`); 
-
-            //     console.log('Check:\n', Math.max.apply(Math, val_list), Math.min.apply(Math, val_list), data[0], Object.keys(data[0])[0], Object.values(data[0])[0]); 
-            //     if(grahams_ratio_value > Math.max.apply(Math, val_list)){
-            //         safety_string = `\r\nActive Fire`;
-            //         indicator_ref.style.marginLeft = `${0}%`;
-            //         indicator_ref.style.marginRight = `${85}%`;
-            //     }
-            //     else if(grahams_ratio_value < Math.min.apply(Math, val_list)){
-            //         safety_string = `\r\nSafe`;
-            //         indicator_ref.style.marginLeft = `${85}%`;
-            //         indicator_ref.style.marginRight = `${0}%`;
-            //     }
-            //     else{
-            //         for(var i = 0; i < val_list.length; i++) {
-            //             if(grahams_ratio_value > val_list[i]){
-            //                 console.log('grahams_ratio_value > val_list[i] :\n', Object.values(data[0])[i]);
-            //                 safety_string = `\r\n${Object.values(data[0])[i]}`;
-            //                 var m_l = 0 + (i * seg_length);
-            //                 indicator_ref.style.marginLeft = `${m_l}%`;
-            //                 indicator_ref.style.marginRight = `${100 - seg_length - m_l}%`;
-            //             }
-            //             else break;
-            //         }
-            //     }
-            //     safety_status_text_ref.textContent += safety_string;
-            // });
-        }
-    }
-}
-
 //Hide or Show all divs of an id
 function hideOrShowAllById(idToShowOrHide, toShowOrHide){
     for(var j = 0; j < idToShowOrHide.length; j++){
@@ -590,36 +503,6 @@ function hideOrShowAllById(idToShowOrHide, toShowOrHide){
 function hideOrShowOneById(idToShowOrHide, toShowOrHide){
     document.getElementById(idToShowOrHide).style.display = toShowOrHide;
     debugLogPrint(['hideOrShowOneById', idToShowOrHide, toShowOrHide]);
-}
-
-//function for bar split??
-function barSplit(keys_list){
-    hideOrShowAllById(['grahams_meter'], 'block');
-    var bar_div_seg_ref = document.getElementById('grahams_meter_seg');
-    hideOrShowOneById('grahams_meter_seg', 'grid');
-
-    var r_int = 255;
-    var g_int = 0;
-    var color_segs_int = 255/(keys_list.length-1);
-    for(var i = 0; i < keys_list.length; i++) {
-        var opt = document.createElement('div');
-        opt.innerHTML = keys_list[i];
-        opt.value = keys_list[i];
-        if(i == 0){
-            r_int = 255;
-            g_int = 0;
-        }
-        else if(i == keys_list.length-1){
-            r_int = 0;
-            g_int = 255;
-        }
-        else{
-            r_int -= color_segs_int;
-            g_int += color_segs_int;
-        }
-        opt.style.backgroundColor  = `rgb(${r_int}, ${g_int}, 0)`;
-        bar_div_seg_ref.appendChild(opt);
-    }
 }
 
 //function to accept array of objs and print them in console
