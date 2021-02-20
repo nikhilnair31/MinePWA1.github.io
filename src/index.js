@@ -256,22 +256,22 @@ function checkGasSafetyStatus() {
         gas_conc_int *= 10000;
 
     //find table ref and add errything from object into it
-    var gas_tv_table_ref = document.getElementById('gas_tv_table');
     //clear table every time button is clicked and make first row as table's titles
+    var gas_tv_table_ref = document.getElementById('gas_tv_table');
     gas_tv_table_ref.innerHTML = '<tr><td id="table_heading"> Concentration </td> <td id="table_heading"> Effect </td></tr>';
     
-    //find fb object from localstorage and deepfind function
+    //find db object from localstorage and deepfind function
     var dbObj = JSON.parse(localStorage.getItem('dbObj'));
     var findObj = deepFind(dbObj, curr_path, '/');
-
+    //add values in list, map and rows for tables
     for (const [key, value] of Object.entries(findObj)){
         key_list.push(parseFloat(key));
         map.set(parseFloat(key), value);
-
         var tr = "<tr>";
-        tr += '<td>' + parseFloat(key) + "</td>" + "<td>" + value + "</td></tr>";
+        tr += '<td>' + parseFloat(key) + " ppm </td>" + "<td>" + value + "</td></tr>";
         gas_tv_table_ref.innerHTML += tr;
     }
+    //add last row for > max conc and completely unsafe
     var lastVal = Object.keys(findObj)[Object.keys(findObj).length - 1];
     gas_tv_table_ref.innerHTML += "<tr><td> >" + parseFloat(lastVal) + "</td>" + "<td> fatal </td></tr>";
     debugLogPrint(['checkGasSafetyStatus', curr_path, key_list, map, dbObj, findObj]);
@@ -305,10 +305,10 @@ function checkGasSafetyStatus() {
     //saving either online or locally depending on online status
     if(onlineStatus){
         db_ref.child(`Historical Data/Gas Levels/${gas_name_select}`).push({ 
-            time_stamp : Math.round((new Date()).getTime() / 1000),
-            gas_conc: gas_conc_int,
-            gas_unit: gas_unit_select,
-            safety_status: safety_status_text_ref.textContent
+            'time_stamp' : Math.round((new Date()).getTime() / 1000),
+            'gas_conc': gas_conc_int,
+            'gas_unit': gas_unit_select,
+            'safety_status': safety_status_text_ref.textContent
         });
     }
     else{
@@ -316,6 +316,7 @@ function checkGasSafetyStatus() {
         var keyGenVal = generatePushID();
         gpath = gpath.split('/');
         len = gpath.length; 
+        debugLogPrint([keyGenVal, gpath, len]);
         for (var i=0; i < len; i++){
             dbObj = dbObj[gpath[i]];
         };
@@ -325,7 +326,7 @@ function checkGasSafetyStatus() {
             'gas_unit': gas_unit_select,
             'safety_status': safety_status_text_ref.textContent
         };
-        console.log('checkGasSafetyStatus dbObj: ', dbObj);
+        debugLogPrint(['offline dbObj', dbObj]);
     }
 }
 
@@ -333,65 +334,48 @@ function checkGasSafetyStatus() {
 //input loudness ref for dB(A) and input area ref for type of area
 function checkNoiseSafetyStatus() {
     var map = new Map();
-    var val_list = [];
-    var key_list = [];
-    var threshold_noise;
-
-    var loudness_input_text_int = parseFloat(loudness_val);
-    var loudness_val = document.getElementById('loudness_input_input').value;
-    var area_text = document.getElementById('area_select').value;
-    var day_time = document.getElementById('time_select').value;
 
     if(document.getElementById('noise_type_select').value == "Ambient Noise Levels"){
+        var val_list = [];
+        var threshold_noise;
+        var gpath = `Historical Data/Noise Levels/Ambient Noise Levels`;
+        var area_text = document.getElementById('area_select').value;
+        var day_time = document.getElementById('time_select').value;
+        var loudness_val = document.getElementById('loudness_input_input').value;
+        var loudness_input_text_int = parseFloat(loudness_val);
+
+        //find db object from localstorage and deepfind function
+        var dbObj = JSON.parse(localStorage.getItem('dbObj'));
+        var findObj = deepFind(dbObj, curr_path, '/');
+        //add values in list, map and rows for tables
+        for(const [key, value] of Object.entries(findObj)){
+            val_list.push(parseFloat(value));
+            map.set(parseFloat(value), key);
+        }
+        debugLogPrint(['checkNoiseSafetyStatus', curr_path, val_list, map, dbObj, findObj]);
+
+        //find threshold noise level for selected time and area
+        for (let [key, value] of map.entries()) {
+            if (value === area_text)
+                threshold_noise = key;
+        }
+
+        //check if input noise > or < than threshold noise
+        if(loudness_input_text_int <= threshold_noise)
+            safety_status_text_ref.textContent = 'safe';
+        else
+            safety_status_text_ref.textContent = 'unsafe';
+
         if(onlineStatus){
-            db_ref.child(curr_path).once("value", function(snapshot) {
-                snapshot.forEach(function(child) {
-                    val_list.push(child.val());
-                    map.set(child.val(), child.key);
-                });
-                debugLogPrint([curr_path, val_list, map]);
-        
-                for (let [key, value] of map.entries()) {
-                    if (value === area_text)
-                        threshold_noise = key;
-                }
-                if(loudness_input_text_int <= threshold_noise)
-                    safety_status_text_ref.textContent = 'Safe';
-                else
-                    safety_status_text_ref.textContent = 'UnSafe';
-                
-                //Add auto gen key with full deets as key-value pair
-                db_ref.child('Historical Data/Noise Levels/Ambient Noise Levels').push({ 
-                    time_stamp : Math.round((new Date()).getTime() / 1000),
-                    day_time: day_time,
-                    area_name: area_text,
-                    loudness: parseInt(loudness_val),
-                    safety_status: safety_status_text_ref.textContent
-                });
+            db_ref.child(gpath).push({ 
+                'time_stamp' : Math.round((new Date()).getTime()/1000),
+                'day_time': day_time,
+                'area_name': area_text,
+                'loudness': parseInt(loudness_val),
+                'safety_status': safety_status_text_ref.textContent
             });
         }
         else{
-            var dbObj = JSON.parse(localStorage.getItem('dbObj'));
-            console.log('checkNoiseSafetyStatus dbObj: ', dbObj);
-            var findObj = deepFind(dbObj, curr_path, '/');
-            console.log('checkNoiseSafetyStatus findObj: ', findObj);
-            for(const [key, value] of Object.entries(findObj)){
-                val_list.push(parseFloat(value));
-                map.set(parseFloat(value), key);
-            }
-            debugLogPrint([curr_path, val_list, map]);
-
-            for (let [key, value] of map.entries()) {
-                if (value === area_text)
-                    threshold_noise = key;
-            }
-            if(loudness_input_text_int <= threshold_noise)
-                safety_status_text_ref.textContent = 'Safe';
-            else
-                safety_status_text_ref.textContent = 'UnSafe';
-            
-            //Add auto gen key with full deets as key-value pair
-            var gpath = `Historical Data/Noise Levels/Ambient Noise Levels`;
             var keyGenVal = generatePushID();
             gpath = gpath.split('/');
             len = gpath.length; 
@@ -400,74 +384,82 @@ function checkNoiseSafetyStatus() {
                 dbObj = dbObj[gpath[i]];
             };
             dbObj[keyGenVal] = {
-                time_stamp : Math.round((new Date()).getTime() / 1000),
-                day_time: day_time,
-                area_name: area_text,
-                loudness: parseInt(loudness_val),
-                safety_status: safety_status_text_ref.textContent
+                'time_stamp' : Math.round((new Date()).getTime() / 1000),
+                'day_time': day_time,
+                'area_name': area_text,
+                'loudness': parseInt(loudness_val),
+                'safety_status': safety_status_text_ref.textContent
             };
-            console.log('checkNoiseSafetyStatus dbObj: ', dbObj);
+            debugLogPrint(['offline dbObj', dbObj]);
         }
     }
     else if(document.getElementById('noise_type_select').value == "OSHA"){
+        var key_list = [];
+        var gpath = `Historical Data/Noise Levels/OSHA`;
         var loudness_val = document.getElementById('loudness_input_input').value;
         var loudness_input_text_int = parseFloat(loudness_val);
-   
-        if(onlineStatus){
-            db_ref.child(curr_path).once("value", function(snapshot) {
-                snapshot.forEach(function(child) {
-                    key_list.push(parseFloat(child.key));
-                    map.set(parseFloat(child.key), child.val());
-                });
-                debugLogPrint([curr_path, key_list, map]);
-        
-                if(loudness_input_text_int <= Math.min.apply(Math, key_list))
-                    safety_status_text_ref.textContent = `Safe`;
-                else if(loudness_input_text_int > Math.max.apply(Math, key_list))
-                    safety_status_text_ref.textContent = `Completely UnSafe`;
-                else{
-                    for(var i = 0; i < key_list.length; i++) {
-                        if(loudness_input_text_int <= key_list[i]){
-                            safety_status_text_ref.textContent = `UnSafe after ${map.get(key_list[i])} hours`;
-                            break;
-                        }
-                    }
-                }
 
-                //Add auto gen key with full deets as key-value pair
-                db_ref.child('Historical Data/Noise Levels/OSHA').push({ 
-                    time_stamp : Math.round((new Date()).getTime() / 1000),
-                    loudness: parseInt(loudness_val),
-                    safety_status: safety_status_text_ref.textContent
-                });
-            });
+        //find table ref and add errything from object into it
+        //clear table every time button is clicked and make first row as table's titles
+        var gas_tv_table_ref = document.getElementById('gas_tv_table');
+        gas_tv_table_ref.innerHTML = '<tr><td id="table_heading"> Loudness </td> <td id="table_heading"> Hours </td></tr>';
+        
+        //find db object from localstorage and deepfind function
+        var dbObj = JSON.parse(localStorage.getItem('dbObj'));
+        var findObj = deepFind(dbObj, curr_path, '/');
+
+        //add first row for <90 db(A) and completely safe
+        var firstVal = Object.keys(findObj)[0];
+        gas_tv_table_ref.innerHTML += "<tr><td> <" + parseFloat(firstVal) + "</td>" + "<td> completely safe </td></tr>";
+        //add values in list, map and rows for tables
+        for (const [key, value] of Object.entries(findObj)){
+            key_list.push(parseFloat(key));
+            map.set(parseFloat(key), value);
+            var tr = "<tr>";
+            tr += '<td>' + parseFloat(key) + " dB(A) </td>" + "<td>" + value + " h </td></tr>";
+            gas_tv_table_ref.innerHTML += tr;
+        }
+        //add last row for >115 db(A) and completely unsafe
+        var lastVal = Object.keys(findObj)[Object.keys(findObj).length - 1];
+        gas_tv_table_ref.innerHTML += "<tr><td> >" + parseFloat(lastVal) + "</td>" + "<td> completely unsafe </td></tr>";
+        debugLogPrint(['checkNoiseSafetyStatus', curr_path, key_list, map, dbObj, findObj]);
+
+        //If input loudness is less than min then completely safe and if more than max then completely unsafe
+        if(loudness_input_text_int <= Math.min.apply(Math, key_list)){
+            safety_status_text_ref.textContent = `Safe`;
+            $('table #gas_tv_table tr:nth-child(2)').css({'background-color': 'rgb(255, 71, 95)'});
+        }
+        else if(loudness_input_text_int > Math.max.apply(Math, key_list)){
+            safety_status_text_ref.textContent = `Completely UnSafe`;
+            $('table #gas_tv_table tr:nth-child('+ (key_list.length+3) +')').css({'background-color': 'rgb(255, 71, 95)'});
         }
         else{
-            var dbObj = JSON.parse(localStorage.getItem('dbObj'));
-            console.log('checkNoiseSafetyStatus dbObj: ', dbObj);
-            var findObj = deepFind(dbObj, curr_path, '/');
-            console.log('checkNoiseSafetyStatus findObj: ', findObj);
-            for(const [key, value] of Object.entries(findObj)){
-                key_list.push(parseFloat(key));
-                map.set(parseFloat(key), value);
-            }
-            debugLogPrint([curr_path, val_list, map]);
-
-            if(loudness_input_text_int <= Math.min.apply(Math, key_list))
-                safety_status_text_ref.textContent = `Safe`;
-            else if(loudness_input_text_int > Math.max.apply(Math, key_list))
-                safety_status_text_ref.textContent = `Completely UnSafe`;
-            else{
-                for(var i = 0; i < key_list.length; i++) {
-                    if(loudness_input_text_int <= key_list[i]){
+            for(var i = 0; i < key_list.length; i++) {
+                if(loudness_input_text_int <= key_list[i]){
+                    debugLogPrint(['checkNoiseSafetyStatus', loudness_input_text_int, loudness_input_text_int - key_list[i-1], key_list[i] - loudness_input_text_int, i]);
+                    if(loudness_input_text_int - key_list[i-1] < key_list[i] - loudness_input_text_int){
+                        $('table #gas_tv_table tr:nth-child('+ (i+2) +')').css({'background-color': 'rgb(255, 71, 95)'});
+                        safety_status_text_ref.textContent = `UnSafe after ${map.get(key_list[i-1])} hours`;
+                        break;
+                    }
+                    else{
+                        $('table #gas_tv_table tr:nth-child('+ (i+3) +')').css({'background-color': 'rgb(255, 71, 95)'});
                         safety_status_text_ref.textContent = `UnSafe after ${map.get(key_list[i])} hours`;
                         break;
                     }
                 }
             }
-            
-            //Add auto gen key with full deets as key-value pair
-            var gpath = `Historical Data/Noise Levels/OSHA`;
+        }
+
+        //saving either online or locally depending on online status
+        if(onlineStatus){
+            db_ref.child(gpath).push({ 
+                'time_stamp' : Math.round((new Date()).getTime() / 1000),
+                'loudness': parseInt(loudness_val),
+                'safety_status': safety_status_text_ref.textContent
+            });
+        }
+        else{
             var keyGenVal = generatePushID();
             gpath = gpath.split('/');
             len = gpath.length; 
@@ -476,11 +468,11 @@ function checkNoiseSafetyStatus() {
                 dbObj = dbObj[gpath[i]];
             };
             dbObj[keyGenVal] = {
-                time_stamp : Math.round((new Date()).getTime() / 1000),
-                loudness: parseInt(loudness_val),
-                safety_status: safety_status_text_ref.textContent
+                'time_stamp' : Math.round((new Date()).getTime() / 1000),
+                'loudness': parseInt(loudness_val),
+                'safety_status': safety_status_text_ref.textContent
             };
-            console.log('checkNoiseSafetyStatus dbObj: ', dbObj);
+            debugLogPrint(['offline dbObj', dbObj]);
         }
     }
 }
