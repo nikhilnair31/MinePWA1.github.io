@@ -96,8 +96,8 @@ input {
 
 #conn_icon {
     position:absolute;
-    top: 10px;
-    left: 10px;
+    top: 20px;
+    left: 17px;
     height: 1.5pc;
     width: 1.5pc;
     background-image: url("../images/wifi_conn.png");
@@ -109,6 +109,7 @@ input {
 
 #conn_label {
     position:absolute;
+    margin-top: 10px;
     left: 10px;
     font-size: 10px;
     color:  #8ad6cc;
@@ -122,13 +123,30 @@ input {
     position:absolute;
     top:0;
     right:0;
-    height: 2.5pc;
-    width: 2.5pc;
-    background-image: url("../images/Sil_192.png");
+    height: 2pc;
+    width: 2pc;
+    background-image: url("../images/twitter_icon.png");
     background-size: 102% 102%;
     background-position: center center;
     background-repeat: no-repeat;
     border-radius: 50%;
+}
+
+#getButtonResult {
+    height: 3pc;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-family: 'Comfortaa', cursive;
+    padding: 5px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
+    color: rgb(49, 49, 49);
+    background: #8ad6cc;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0px;
 }
 
 button {
@@ -142,7 +160,7 @@ button {
     display: inline-block;
     font-size: 10px;
     color: rgb(49, 49, 49);
-    background: #66b2b2;
+    /* background: #8ad6cc; */
     border: 0;
     box-shadow: none;
     border-radius: 0px;
@@ -166,6 +184,7 @@ p {
 
 h1 {
     font-family: 'Comfortaa', cursive;
+    font-size: 20px;
     color: white;
     margin-top: 30px;
     margin-bottom: 30px;
