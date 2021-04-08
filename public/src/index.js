@@ -450,8 +450,3 @@ function debugLogPrint(varList){
         console.log('%c debugLogPrint -\n', 'color: red; font-weight: bold;', entry);
     });
 }
-
-//Open my twitter profile
-function openTwitter(){
-    window.open('https://twitter.com/_silhouettte_');
-}

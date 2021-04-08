@@ -1,14 +1,14 @@
 {
     "lang" : "en",
-    "name" : "MinePWA1",
-    "short_name" : "MPWA1",
-    "description" : "Sample PWA for Mine Safety Checking",
+    "name" : "Mine Safety Tool",
+    "short_name" : "Mine Safety Tool",
+    "description" : "Mine Safety Tool to check thresholdvalues for gas concentration, noise levels and gas ratios",
     "start_url" : ".",
     "background_color" : "#e8e8e8",
     "theme_color" : "#42f5dd",
     "display" : "standalone",
     "orientation" : "portrait",
-    "categories": ["utility", "tools"],
+    "categories": ["tools", "utility"],
     "screenshots" : [
         {
             "src": "images/ss1.jpeg",

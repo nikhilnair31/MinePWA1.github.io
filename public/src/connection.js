@@ -281,8 +281,6 @@ var conn_status_label = document.getElementById("conn_label");
 //flip status to have localStorage running while connected during debug times
 if(window.navigator.onLine){
 	onlineStatus = true;//false
-	conn_status_label.style.color = "#8ad6cc";
-	conn_status_label.textContent = 'Cloud';
 	conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#8ad6cc 0px 0px 0px) saturate(1000%)");
 	conn_status_icon.src = "../images/wifi_conn.png";
 	$.getJSON('https://minedb31.firebaseio.com/.json', function(data) {
@@ -293,8 +291,6 @@ if(window.navigator.onLine){
 }
 else{
 	onlineStatus = false;//true
-	conn_status_label.style.color = "#f98b8b";
-	conn_status_label.textContent = 'Local';
 	conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
 	conn_status_icon.src = "../images/wifi_disconn.png";
 }
