@@ -6,8 +6,5 @@ Safety testing can be done for the following parameters;
 * Noise Concentrations Levels (eg. Ambient Noise, OSHA Standards etc.)
 * Spontaneous Fires (eg. Gas Ratios like Graham's Ratio etc.)
 
-### **Github Page Link**
-https://github.com/nikhilnair31/MinePWA1.github.io
-
 ### **Hosted Page Link**
 https://nikhilnair31.github.io/MinePWA1.github.io/
