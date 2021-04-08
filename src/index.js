@@ -28,59 +28,6 @@ function loadOfOptions(path, select_string_ref){
             opt.value = options[i];
             document.getElementById(select_string_ref).appendChild(opt);
         }
-
-        //this patch is to get stuff from rtd when online and localStorage when offline
-        {
-        // if(onlineStatus){
-        //     db_ref.child(path).once("value", function(snapshot) {
-        //         snapshot.forEach(function(child) {
-        //             options.push(child.key);
-        //         });
-        //         for(var i = 0; i < options.length; i++) {
-        //             var opt = document.createElement('option');
-        //             opt.innerHTML = options[i];
-        //             opt.value = options[i];
-        //             document.getElementById(select_string_ref).appendChild(opt);
-        //         }
-        //     });
-        // }
-        // //get k/v by path from localStorage
-        // else {
-        //     var dbObj = JSON.parse(localStorage.getItem('dbObj'));
-        //     console.log('loadOfOptions dbObj: ', dbObj);
-        //     var findObj = deepFind(dbObj, path, '/');
-        //     console.log('loadOfOptions findObj: ', findObj);
-        //     for(const [key] of Object.entries(findObj)){
-        //         options.push(key);
-        //     }
-        //     for(var i = 0; i < options.length; i++) {
-        //         var opt = document.createElement('option');
-        //         opt.innerHTML = options[i];
-        //         opt.value = options[i];
-        //         document.getElementById(select_string_ref).appendChild(opt);
-        //     }
-        // }
-        }
-        
-        //odd number of things in path to get docs by path from firestore
-        {
-            // firestore_ref.collection(path).get().then((snapshot) => {
-            //     const data = snapshot.docs.map((doc) => ({
-            //         id: doc.id,
-            //         ...doc.data(),
-            //     }));
-            //     console.log(`All data in collection\n ${JSON.stringify( data )}`); 
-            //     for(var j = 0; j < data.length; j++) {
-            //         options.push(data[j].id);
-            //     }
-            //     for(var i = 0; i < options.length; i++) {
-            //         var opt = document.createElement('option');
-            //         opt.innerHTML = options[i];
-            //         opt.value = options[i];
-            //         select_dom_ref.appendChild(opt);
-            //     }
-            // });
-        }
     }
 }
 

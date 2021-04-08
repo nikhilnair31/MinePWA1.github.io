@@ -8,6 +8,14 @@
     "theme_color" : "#42f5dd",
     "display" : "standalone",
     "orientation" : "portrait",
+    "categories": ["utility", "tools"],
+    "screenshots" : [
+        {
+          "src": "images/ss1.jpg",
+          "sizes": "2143x1080",
+          "type": "image/jpg"
+        }
+      ],
     "icons" : [
         {
             "src" : "images/Sil_192.png",
