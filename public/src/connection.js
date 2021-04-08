@@ -275,7 +275,6 @@ var dbObj = {
 	}
 };
 var conn_status_icon = document.getElementById("conn_icon");
-var conn_status_label = document.getElementById("conn_label");
 
 //intial check for connection by getting conn status ref and show online or offline status, and if online then save a copy of the json and overwrite dbObj
 //flip status to have localStorage running while connected during debug times
@@ -332,8 +331,6 @@ function connStatusSwitch(isOnline) {
 	//changed from offline->online
 	if (isOnline) {
 		onlineStatus = false;//true
-		conn_status_label.style.color = "#8ad6cc";
-		conn_status_label.textContent = 'Cloud';
 		conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#8ad6cc 0px 0px 0px) saturate(1000%)");
 		conn_status_icon.src = "../images/wifi_conn.png";
 		
@@ -343,8 +340,6 @@ function connStatusSwitch(isOnline) {
 	//changed from online->offline
 	else {
 		onlineStatus = true;//false
-		conn_status_label.style.color = "#f98b8b";
-		conn_status_label.textContent = 'Local';
 		conn_status_icon.style.setProperty("-webkit-filter", "opacity(0.5) drop-shadow(#f98b8b 0px 0px 0px) saturate(1000%)");
 		conn_status_icon.src = "../images/wifi_disconn.png";
 
