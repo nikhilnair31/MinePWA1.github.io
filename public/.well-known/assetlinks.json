@@ -1,5 +1,5 @@
 [{
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target" : { "namespace": "android_app", "package_name": "com.Sil.minepwa1",
-                   "sha256_cert_fingerprints": ["56:C3:29:B0:3C:55:F1:F9:B4:2F:67:3C:8E:EE:62:F4:F8:C9:F7:3B:5D:AD:9A:EA:C9:BF:4F:FE:CB:13:4D:CA"] }
+                   "sha256_cert_fingerprints": ["F3:C2:EC:B9:DA:3E:C5:46:CD:EF:8C:D0:6D:D3:DF:09:60:D3:94:89:BA:58:B3:E0:F4:B3:65:D8:33:70:81:71"] }
     }]
