@@ -7,4 +7,5 @@ Safety testing can be done for the following parameters;
 * Spontaneous Fires (eg. Gas Ratios like Graham's Ratio etc.)
 
 ### **Hosted Page Link**
-https://nikhilnair31.github.io/MinePWA1.github.io/
+https://minedb31.web.app/
+https://minedb31.firebaseapp.com/
