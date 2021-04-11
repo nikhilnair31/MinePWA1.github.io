@@ -9,3 +9,6 @@ Safety testing can be done for the following parameters;
 ### **Hosted Page Link**
 * https://minedb31.web.app/
 * https://minedb31.firebaseapp.com/
+
+### **App Link**
+* https://play.google.com/store/apps/details?id=com.Sil.minepwa1
